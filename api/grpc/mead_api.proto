@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package mead_api;
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "npm.proto";
+
+option go_package = "/mead_api";
+option (npm_package) = "@mead/api";
+
+service meadAPI {
+  rpc Version(Version.Request) returns (Version.Response) {
+    option (google.api.http) = {
+      get: "/api/version"
+    };
+  };
+}
+
+message Version {
+  message Request {}
+
+  message Response {
+    string version = 1;
+    google.protobuf.Timestamp client_timestamp = 2;
+  }
+}

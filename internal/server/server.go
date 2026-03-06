@@ -14,9 +14,9 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"go.redsock.ru/mead/internal/auth"
 	"go.redsock.ru/mead/internal/config"
 	"go.redsock.ru/mead/internal/log_key"
+	"go.redsock.ru/mead/internal/service/iservice"
 )
 
 // SOCKS5 protocol constants (RFC 1928).
@@ -51,10 +51,12 @@ const (
 
 // Server is a production-ready SOCKS5 proxy server.
 type Server struct {
-	cfg          *config.Config
-	auth         auth.Authenticator
-	listener     net.Listener
-	dialer       *net.Dialer
+	cfg  config.Config
+	auth iservice.Auth
+
+	listener net.Listener
+	dialer   *net.Dialer
+
 	blockedHosts map[string]struct{}
 	allowedNets  []*net.IPNet
 
@@ -64,38 +66,32 @@ type Server struct {
 	closed      chan struct{}
 }
 
-// New creates a Server from cfg. The auth parameter may be nil only when
-// cfg.AllowNoAuth is true.
-func New(cfg *config.Config, authenticator auth.Authenticator) (*Server, error) {
-	if cfg == nil {
-		return nil, fmt.Errorf("config must not be nil")
-	}
-	if !cfg.AllowNoAuth && authenticator == nil {
-		return nil, fmt.Errorf("authenticator required when allow_no_auth is false")
-	}
-
+func New(cfg config.Config, srv iservice.Service) (*Server, error) {
 	s := &Server{
-		cfg:          cfg,
-		auth:         authenticator,
+		cfg:  cfg,
+		auth: srv.Auth(),
+
 		blockedHosts: make(map[string]struct{}),
 		closed:       make(chan struct{}),
+
 		dialer: &net.Dialer{
-			Timeout:   cfg.DialTimeout,
+			Timeout:   cfg.Environment.DialTimeout,
 			KeepAlive: 30 * time.Second,
 		},
 	}
 
-	for _, h := range cfg.BlockedHosts {
-		s.blockedHosts[h] = struct{}{}
-	}
+	//TODO
+	//for _, h := range cfg.BlockedHosts {
+	//	s.blockedHosts[h] = struct{}{}
+	//}
 
-	for _, cidr := range cfg.AllowedCIDRs {
-		_, network, err := net.ParseCIDR(cidr)
-		if err != nil {
-			return nil, fmt.Errorf("invalid CIDR %q: %w", cidr, err)
-		}
-		s.allowedNets = append(s.allowedNets, network)
-	}
+	//for _, cidr := range cfg.AllowedCIDRs {
+	//	_, network, err := net.ParseCIDR(cidr)
+	//	if err != nil {
+	//		return nil, fmt.Errorf("invalid CIDR %q: %w", cidr, err)
+	//	}
+	//	s.allowedNets = append(s.allowedNets, network)
+	//}
 
 	return s, nil
 }
@@ -103,14 +99,13 @@ func New(cfg *config.Config, authenticator auth.Authenticator) (*Server, error) 
 // ListenAndServe starts the SOCKS5 listener and blocks until the server is
 // closed or an unrecoverable error occurs.
 func (s *Server) ListenAndServe(ctx context.Context) error {
-	ln, err := net.Listen("tcp", s.cfg.Address)
+	ln, err := net.Listen("tcp", s.cfg.Environment.Address)
 	if err != nil {
-		return fmt.Errorf("listen on %s: %w", s.cfg.Address, err)
+		return fmt.Errorf("listen on %s: %w", s.cfg.Environment.Address, err)
 	}
 	return s.Serve(ctx, ln)
 }
 
-// Serve accepts connections from ln. It takes ownership of the listener.
 func (s *Server) Serve(ctx context.Context, ln net.Listener) error {
 	s.listener = ln
 	log.Info().
@@ -145,15 +140,6 @@ func (s *Server) Serve(ctx context.Context, ln net.Listener) error {
 			return fmt.Errorf("accept: %w", err)
 		}
 
-		if s.cfg.MaxConnections > 0 &&
-			s.activeConns.Load() >= int64(s.cfg.MaxConnections) {
-			log.Warn().
-				Str(log_key.RemoteAddr, conn.RemoteAddr().String()).
-				Msg("max connections reached, rejecting")
-			conn.Close()
-			continue
-		}
-
 		if !s.isAllowedSource(conn.RemoteAddr()) {
 			log.Warn().
 				Str(log_key.RemoteAddr, conn.RemoteAddr().String()).
@@ -173,21 +159,22 @@ func (s *Server) Serve(ctx context.Context, ln net.Listener) error {
 }
 
 // Close shuts down the server gracefully.
-func (s *Server) Close() {
+func (s *Server) Close() error {
+	var err error
 	s.closeOnce.Do(func() {
 		close(s.closed)
 		if s.listener != nil {
-			s.listener.Close()
+			err = s.listener.Close()
 		}
 	})
+
+	return err
 }
 
-// ActiveConnections returns the current number of active client connections.
 func (s *Server) ActiveConnections() int64 {
 	return s.activeConns.Load()
 }
 
-// isAllowedSource returns true when the source address is permitted.
 func (s *Server) isAllowedSource(addr net.Addr) bool {
 	if len(s.allowedNets) == 0 {
 		return true
@@ -211,17 +198,19 @@ func (s *Server) isAllowedSource(addr net.Addr) bool {
 // handleConn drives the SOCKS5 handshake and data relay for one client.
 func (s *Server) handleConn(conn net.Conn) {
 	defer conn.Close()
+	ctx := context.Background()
+
 	remote := conn.RemoteAddr().String()
 	log.Debug().
 		Str(log_key.RemoteAddr, remote).
 		Msg("new connection")
 
-	if s.cfg.ReadTimeout > 0 {
-		conn.SetDeadline(time.Now().Add(s.cfg.ReadTimeout))
+	if s.cfg.Environment.ReadTimeout > 0 {
+		conn.SetDeadline(time.Now().Add(s.cfg.Environment.ReadTimeout))
 	}
 
-	// --- Negotiate authentication method ---
-	if err := s.negotiateAuth(conn); err != nil {
+	err := s.negotiateAuth(conn)
+	if err != nil {
 		log.Warn().
 			Err(err).
 			Str(log_key.RemoteAddr, remote).
@@ -229,15 +218,13 @@ func (s *Server) handleConn(conn net.Conn) {
 		return
 	}
 
-	// --- Authenticate (RFC 1929) ---
-	if !s.cfg.AllowNoAuth {
-		if err := s.authenticate(conn); err != nil {
-			log.Warn().
-				Err(err).
-				Str(log_key.RemoteAddr, remote).
-				Msg("authentication failed")
-			return
-		}
+	err = s.authenticate(ctx, conn)
+	if err != nil {
+		log.Warn().
+			Err(err).
+			Str(log_key.RemoteAddr, remote).
+			Msg("authentication failed")
+		return
 	}
 
 	// --- Handle CONNECT request ---
@@ -317,30 +304,15 @@ func (s *Server) negotiateAuth(conn net.Conn) error {
 		return fmt.Errorf("read methods: %w", err)
 	}
 
-	selected := authNoAccept
-	for _, m := range methods {
-		if s.cfg.AllowNoAuth && m == authNone {
-			selected = authNone
-			break
-		}
-		if !s.cfg.AllowNoAuth && m == authPassword {
-			selected = authPassword
-			break
-		}
-	}
-
-	_, err := conn.Write([]byte{socks5Version, selected})
+	_, err := conn.Write([]byte{socks5Version, authPassword})
 	if err != nil {
 		return fmt.Errorf("write method selection: %w", err)
 	}
-	if selected == authNoAccept {
-		return fmt.Errorf("no acceptable auth method")
-	}
+
 	return nil
 }
 
-// authenticate performs RFC 1929 sub-negotiation.
-func (s *Server) authenticate(conn net.Conn) error {
+func (s *Server) authenticate(ctx context.Context, conn net.Conn) error {
 	// VER (0x01 for subnegotiation)
 	ver := make([]byte, 1)
 	if _, err := io.ReadFull(conn, ver); err != nil {
@@ -368,12 +340,13 @@ func (s *Server) authenticate(conn net.Conn) error {
 		return fmt.Errorf("read password: %w", err)
 	}
 
-	if err := s.auth.Authenticate(string(username), string(password)); err != nil {
+	err := s.auth.Authenticate(ctx, string(username), string(password))
+	if err != nil {
 		conn.Write([]byte{0x01, 0x01}) //nolint:errcheck — best-effort
 		return fmt.Errorf("authenticate %q: %w", username, err)
 	}
 
-	_, err := conn.Write([]byte{0x01, 0x00}) // success
+	_, err = conn.Write([]byte{0x01, 0x00}) // success
 	return err
 }
 
