@@ -18,7 +18,9 @@ import (
 func main() {
 	err := run()
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to start application")
+		log.Fatal().
+			Err(err).
+			Msg("Failed to start application")
 	}
 }
 
@@ -35,6 +37,9 @@ func run() error {
 		if err != nil {
 			return rerrors.Wrap(err, "Add credential", cr.Username)
 		}
+		log.Info().
+			Str("username", cr.Username).
+			Msg("User added")
 	}
 	log.Info().Msg("Credentials loaded")
 
