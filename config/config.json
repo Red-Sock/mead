@@ -1,0 +1,23 @@
+{
+  "address": "0.0.0.0:1080",
+  "log_level": "INFO",
+  "credentials": [
+    {
+      "username": "alice",
+      "password": "s3cr3t!"
+    },
+    {
+      "username": "bob",
+      "password": "hunter2"
+    }
+  ],
+  "allow_no_auth": false,
+  "dial_timeout": 30000000000,
+  "read_timeout": 60000000000,
+  "max_connections": 1000,
+  "allowed_cidrs": [],
+  "blocked_hosts": [
+    "localhost",
+    "169.254.169.254"
+  ]
+}
