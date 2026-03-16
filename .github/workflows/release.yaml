@@ -3,7 +3,7 @@ run-name: RELEASE
 on:
   push:
     branches:
-      - "master"
+      - "main"
 
 jobs:
   tag-release:
