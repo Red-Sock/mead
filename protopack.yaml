@@ -1,0 +1,35 @@
+version: v1alpha
+
+deps:
+    - github.com/googleapis/googleapis
+    - go.redsock.ru/protoc-gen-npm@v0.0.17
+generate:
+    proto_root: api/grpc
+    generate_out_dirs: true
+    inputs:
+        - directory: "api/grpc"
+    plugins:
+        - name: go
+          out: pkg/mead_api
+          opts:
+              paths: source_relative
+        - name: go-grpc
+          out: pkg/mead_api
+          opts:
+              paths: source_relative
+        - name: grpc-gateway
+          out: pkg/mead_api
+          opts:
+              paths: source_relative
+
+        - name: grpc-gateway-ts
+          out: pkg/web/@ruf/mead
+
+        - name: openapiv2
+          out: pkg/docs/swaggers
+
+        - name: docs
+          out: pkg/docs
+
+        - name: npm
+          out: pkg/web

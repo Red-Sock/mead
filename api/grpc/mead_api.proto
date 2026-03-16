@@ -7,9 +7,9 @@ import "google/api/annotations.proto";
 import "npm.proto";
 
 option go_package = "/mead_api";
-option (npm_package) = "@mead/api";
+option (npm_package) = "@ruf/mead";
 
-service meadAPI {
+service MeadAPI {
   rpc Version(Version.Request) returns (Version.Response) {
     option (google.api.http) = {
       get: "/api/version"

@@ -9,19 +9,16 @@ generate:
     inputs:
       - directory: "api/grpc"
     plugins:
-        # Go server + client
         - name: go
           out: pkg
         - name: go-grpc
           out: pkg
         - name: grpc-gateway
           out: pkg
-        # TypeScript client + npm package
         - name: grpc-gateway-ts
           out: pkg/web
         - name: npm
           out: pkg/web
-        # Documentation + swagger
         - name: openapiv2
           out: pkg/docs
         - name: docs
