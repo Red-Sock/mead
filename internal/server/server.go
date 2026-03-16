@@ -210,7 +210,7 @@ func (s *Server) handleConn(conn net.Conn) {
 		return
 	}
 
-	err = s.authenticate(ctx, conn)
+	username, err := s.authenticate(ctx, conn)
 	if err != nil {
 		log.Warn().
 			Err(err).
@@ -225,6 +225,7 @@ func (s *Server) handleConn(conn net.Conn) {
 		log.Warn().
 			Err(err).
 			Str(log_key.RemoteAddr, remote).
+			Str(log_key.Username, username).
 			Msg("bad request")
 		return
 	}
@@ -234,12 +235,14 @@ func (s *Server) handleConn(conn net.Conn) {
 
 	log.Info().
 		Str(log_key.RemoteAddr, remote).
+		Str(log_key.Username, username).
 		Str(log_key.TargetAddr, target).
 		Msg("Connection established")
 
 	if s.isBlocked(target) {
 		log.Warn().
 			Str(log_key.RemoteAddr, remote).
+			Str(log_key.Username, username).
 			Str(log_key.TargetAddr, target).
 			Msg("blocked destination ")
 		writeReply(conn, replyNotAllowed)
@@ -251,6 +254,8 @@ func (s *Server) handleConn(conn net.Conn) {
 	if err != nil {
 		log.Warn().
 			Err(err).
+			Str(log_key.RemoteAddr, remote).
+			Str(log_key.Username, username).
 			Str(log_key.TargetAddr, target).
 			Msg("dial failed")
 		writeReply(conn, dialErrToReply(err))
@@ -263,15 +268,18 @@ func (s *Server) handleConn(conn net.Conn) {
 	if err != nil {
 		log.Warn().
 			Err(err).
+			Str(log_key.RemoteAddr, remote).
+			Str(log_key.Username, username).
 			Str(log_key.TargetAddr, target).
 			Msg("Write reply ")
 		return
 	}
 
 	// --- Relay data ---
-	relay(conn, dst)
+	s.relay(conn, dst, username, remote, target)
 	log.Debug().
 		Str(log_key.RemoteAddr, remote).
+		Str(log_key.Username, username).
 		Str(log_key.TargetAddr, target).
 		Msg("connection closed")
 }
@@ -304,42 +312,42 @@ func (s *Server) negotiateAuth(conn net.Conn) error {
 	return nil
 }
 
-func (s *Server) authenticate(ctx context.Context, conn net.Conn) error {
+func (s *Server) authenticate(ctx context.Context, conn net.Conn) (string, error) {
 	// VER (0x01 for subnegotiation)
 	ver := make([]byte, 1)
 	if _, err := io.ReadFull(conn, ver); err != nil {
-		return fmt.Errorf("read auth version: %w", err)
+		return "", fmt.Errorf("read auth version: %w", err)
 	}
 	if ver[0] != 0x01 {
-		return fmt.Errorf("unsupported auth version: %d", ver[0])
+		return "", fmt.Errorf("unsupported auth version: %d", ver[0])
 	}
 
 	ulen := make([]byte, 1)
 	if _, err := io.ReadFull(conn, ulen); err != nil {
-		return fmt.Errorf("read ulen: %w", err)
+		return "", fmt.Errorf("read ulen: %w", err)
 	}
 	username := make([]byte, ulen[0])
 	if _, err := io.ReadFull(conn, username); err != nil {
-		return fmt.Errorf("read username: %w", err)
+		return "", fmt.Errorf("read username: %w", err)
 	}
 
 	plen := make([]byte, 1)
 	if _, err := io.ReadFull(conn, plen); err != nil {
-		return fmt.Errorf("read plen: %w", err)
+		return "", fmt.Errorf("read plen: %w", err)
 	}
 	password := make([]byte, plen[0])
 	if _, err := io.ReadFull(conn, password); err != nil {
-		return fmt.Errorf("read password: %w", err)
+		return "", fmt.Errorf("read password: %w", err)
 	}
 
 	err := s.auth.Authenticate(ctx, string(username), string(password))
 	if err != nil {
 		conn.Write([]byte{0x01, 0x01}) //nolint:errcheck — best-effort
-		return fmt.Errorf("authenticate %q: %w", username, err)
+		return "", fmt.Errorf("authenticate %q: %w", username, err)
 	}
 
 	_, err = conn.Write([]byte{0x01, 0x00}) // success
-	return err
+	return string(username), err
 }
 
 // readRequest parses a SOCKS5 CONNECT request and returns "host:port".
@@ -456,15 +464,36 @@ func dialErrToReply(err error) uint8 {
 }
 
 // relay copies data bidirectionally between a and b until either side closes.
-func relay(a, b net.Conn) {
+func (s *Server) relay(a, b net.Conn, username, remote, target string) {
 	var wg sync.WaitGroup
 	wg.Add(2)
-	copy := func(dst, src net.Conn) {
+	copy := func(dst, src net.Conn, dir string) {
 		defer wg.Done()
 		defer dst.(*net.TCPConn).CloseWrite() //nolint:errcheck
-		io.Copy(dst, src)                     //nolint:errcheck
+
+		buf := make([]byte, 32*1024)
+		for {
+			n, err := src.Read(buf)
+			if n > 0 {
+				log.Info().
+					Str(log_key.Username, username).
+					Str(log_key.RemoteAddr, remote).
+					Str(log_key.TargetAddr, target).
+					Str("dir", dir).
+					Hex(log_key.Data, buf[:n]).
+					Msg("traffic")
+
+				_, wErr := dst.Write(buf[:n])
+				if wErr != nil {
+					break
+				}
+			}
+			if err != nil {
+				break
+			}
+		}
 	}
-	go copy(b, a)
-	go copy(a, b)
+	go copy(b, a, "out")
+	go copy(a, b, "in")
 	wg.Wait()
 }
