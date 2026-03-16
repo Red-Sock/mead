@@ -4,6 +4,7 @@ package app
 
 import (
 	"go.redsock.ru/mead/internal/clients/sqldb"
+	"go.redsock.ru/mead/internal/clients/telegram"
 	"go.redsock.ru/rerrors"
 )
 
@@ -11,6 +12,11 @@ func (a *App) InitDataSources() (err error) {
 	a.Sqlite, err = sqldb.New(a.Cfg.DataSources.Sqlite)
 	if err != nil {
 		return rerrors.Wrap(err, "error during sql connection initialization")
+	}
+
+	a.Telegram, err = telegram.New(a.Cfg.DataSources.Telegram)
+	if err != nil {
+		return rerrors.Wrap(err, "error during telegram bot initialization")
 	}
 
 	return nil

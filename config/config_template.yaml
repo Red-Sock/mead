@@ -6,6 +6,8 @@ data_sources:
     - resource_name: sqlite
       path: /app/data/mead.db
       migrations_folder: ./migrations
+    - resource_name: telegram
+      api_key: ""
 servers:
     3081:
         /{GRPC}:

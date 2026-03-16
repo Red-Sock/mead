@@ -6,15 +6,17 @@ data_sources:
     - resource_name: sqlite
       path: /app/data/mead.db
       migrations_folder: ./migrations
+    - resource_name: telegram
+      api_key: ""
 servers:
-  3081:
+    3081:
         /{GRPC}:
             module: go.redsock.ru/mead
             gateway: /api
 environment:
     - name: address
       type: string
-      value: "0.0.0.0:3080"
+      value: 0.0.0.0:3080
     - name: dial_timeout
       type: duration
       value: 30s

@@ -7,5 +7,6 @@ import (
 )
 
 type DataSourcesConfig struct {
-	Sqlite *resources.Sqlite
+	Sqlite   *resources.Sqlite
+	Telegram *resources.Telegram
 }
