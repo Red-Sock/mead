@@ -9,6 +9,7 @@ import (
 	"go.redsock.ru/rerrors"
 	"golang.org/x/sync/errgroup"
 
+	"go.redsock.ru/mead/internal/middleware"
 	"go.redsock.ru/mead/internal/server"
 	"go.redsock.ru/mead/internal/service"
 	"go.redsock.ru/mead/internal/service/iservice"
@@ -46,6 +47,11 @@ func (c *Custom) Init(a *App) (err error) {
 	c.ApiServer.AddHttpHandler(docs.Swagger())
 	c.ApiServer.AddImplementation(mead_api_impl.New(a.Cfg))
 
+	c.ApiServer.AddServerOption(
+		middleware.AuthInterceptor("123"),
+		middleware.LogInterceptor(),
+		middleware.PanicInterceptor(),
+	)
 	return nil
 }
 
