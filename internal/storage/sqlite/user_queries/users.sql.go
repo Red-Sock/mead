@@ -23,3 +23,30 @@ func (q *Queries) Add(ctx context.Context, arg AddParams) error {
 	_, err := q.db.ExecContext(ctx, add, arg.Username, arg.Pass)
 	return err
 }
+
+const getByTelegramName = `-- name: GetByTelegramName :one
+SELECT username
+FROM users
+WHERE username = ?
+LIMIT 1
+`
+
+func (q *Queries) GetByTelegramName(ctx context.Context, username string) (string, error) {
+	row := q.db.QueryRowContext(ctx, getByTelegramName, username)
+	err := row.Scan(&username)
+	return username, err
+}
+
+const getPassByUsername = `-- name: GetPassByUsername :one
+SELECT pass
+FROM users
+WHERE username = ?
+LIMIT 1
+`
+
+func (q *Queries) GetPassByUsername(ctx context.Context, username string) (string, error) {
+	row := q.db.QueryRowContext(ctx, getPassByUsername, username)
+	var pass string
+	err := row.Scan(&pass)
+	return pass, err
+}

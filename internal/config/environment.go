@@ -7,11 +7,14 @@ import (
 )
 
 type EnvironmentConfig struct {
-	Address     string
-	DialTimeout time.Duration
-	LogFormat   string
-	LogLevel    string
-	ReadTimeout time.Duration
+	Address      string
+	APIToken     string
+	DialTimeout  time.Duration
+	LogFormat    string
+	LogLevel     string
+	ProxyAddress string
+	ProxyPort    int
+	ReadTimeout  time.Duration
 }
 
 const (

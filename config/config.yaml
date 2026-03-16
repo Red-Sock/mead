@@ -20,6 +20,9 @@ environment:
     - name: dial_timeout
       type: duration
       value: 30s
+    - name: api_token
+      type: string
+      value: "1251"
     - name: log_format
       type: string
       enum: [JSON, TEXT]
@@ -28,6 +31,12 @@ environment:
       type: string
       enum: [Trace, Debug, Info, Warn, Error, Fatal, Panic]
       value: Info
+    - name: proxy_address
+      type: string
+      value: vpn.redsock.ru
+    - name: proxy_port
+      type: int
+      value: 3080
     - name: read_timeout
       type: duration
       value: 1m0s

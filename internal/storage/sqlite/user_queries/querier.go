@@ -10,6 +10,8 @@ import (
 
 type Querier interface {
 	Add(ctx context.Context, arg AddParams) error
+	GetByTelegramName(ctx context.Context, username string) (string, error)
+	GetPassByUsername(ctx context.Context, username string) (string, error)
 }
 
 var _ Querier = (*Queries)(nil)

@@ -1,7 +1,10 @@
 package storage
 
 import (
-	user_queries "go.redsock.ru/mead/internal/storage/sqlite/user_queries"
+	"context"
+
+	"go.redsock.ru/mead/internal/domain"
+	"go.redsock.ru/mead/internal/storage/sqlite/user_queries"
 )
 
 type Storage interface {
@@ -9,5 +12,10 @@ type Storage interface {
 }
 
 type Users interface {
-	user_queries.Querier
+	Add(ctx context.Context, arg user_queries.AddParams) error
+
+	GetByTelegramName(ctx context.Context, username string) (domain.User, error)
+	GetPassByUsername(ctx context.Context, username string) (string, error)
+
+	List(ctx context.Context, req domain.ListUsersReq) ([]domain.User, error)
 }

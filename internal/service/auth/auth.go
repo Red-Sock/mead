@@ -3,40 +3,50 @@ package auth
 import (
 	"context"
 	"crypto/subtle"
+	"fmt"
 	"sync"
 
 	"go.redsock.ru/rerrors"
 
+	"go.redsock.ru/mead/internal/config"
+	"go.redsock.ru/mead/internal/domain"
 	"go.redsock.ru/mead/internal/service/user_errors"
 	"go.redsock.ru/mead/internal/storage"
 	"go.redsock.ru/mead/internal/storage/sqlite/user_queries"
+	"go.redsock.ru/mead/internal/utils"
 )
 
 type Authenticator interface {
 	Authenticate(username, password string) error
 }
 
-type CredentialStore struct {
+type CredentialService struct {
 	usersStorage storage.Users
 
 	mu    sync.RWMutex
 	cache map[string][]byte
+
+	proxyBaseUrl string
 }
 
-func NewAuth(str storage.Storage) *CredentialStore {
-	return &CredentialStore{
+func NewAuth(cfg config.Config, str storage.Storage) *CredentialService {
+	return &CredentialService{
 		usersStorage: str.Users(),
 
 		cache: make(map[string][]byte),
+
+		proxyBaseUrl: fmt.Sprintf("tg://socks?server=%s&port=%d",
+			cfg.Environment.ProxyAddress,
+			cfg.Environment.ProxyPort),
 	}
 }
 
-func (s *CredentialStore) Add(ctx context.Context, username, password string) error {
+func (s *CredentialService) Add(ctx context.Context, username, password string) error {
 	if username == "" {
 		return user_errors.ErrUsernameIsEmpty
 	}
 	if password == "" {
-		return user_errors.ErrPasswordIsEmpty
+		password = utils.GeneratePassword(16)
 	}
 
 	addParams := user_queries.AddParams{
@@ -57,7 +67,7 @@ func (s *CredentialStore) Add(ctx context.Context, username, password string) er
 }
 
 // Authenticate implements Authenticator using constant-time comparison.
-func (s *CredentialStore) Authenticate(ctx context.Context, username, password string) error {
+func (s *CredentialService) Authenticate(ctx context.Context, username, password string) error {
 
 	return nil
 
@@ -80,4 +90,34 @@ func (s *CredentialStore) Authenticate(ctx context.Context, username, password s
 		return user_errors.ErrUnauthorized
 	}
 	return nil
+}
+
+func (s *CredentialService) ListUsers(ctx context.Context, req domain.ListUsersReq) ([]domain.User, error) {
+	users, err := s.usersStorage.List(ctx, req)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error listing users")
+	}
+
+	return users, nil
+}
+
+func (s *CredentialService) AuthByTelegramUsername(ctx context.Context, username string) (domain.UserAuth, error) {
+	user, err := s.usersStorage.GetByTelegramName(ctx, username)
+	if err != nil {
+		return domain.UserAuth{}, rerrors.Wrap(err, "error getting user")
+	}
+
+	pass, err := s.usersStorage.GetPassByUsername(ctx, username)
+	if err != nil {
+		return domain.UserAuth{}, rerrors.Wrap(err, "error reading pass")
+	}
+
+	return domain.UserAuth{
+		User:      user,
+		ProxyLink: s.generateProxyLink(user, pass),
+	}, nil
+}
+
+func (s *CredentialService) generateProxyLink(user domain.User, pass string) string {
+	return fmt.Sprintf(s.proxyBaseUrl+"&user=%s&pass=%s", user.Username, pass)
 }

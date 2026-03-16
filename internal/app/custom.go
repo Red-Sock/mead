@@ -17,6 +17,7 @@ import (
 	"go.redsock.ru/mead/internal/storage/sqlite"
 	"go.redsock.ru/mead/internal/transport"
 	"go.redsock.ru/mead/internal/transport/mead_api_impl"
+	"go.redsock.ru/mead/internal/transport/telegram"
 	"go.redsock.ru/mead/pkg/docs"
 )
 
@@ -27,12 +28,13 @@ type Custom struct {
 
 	ApiServer   *transport.ServersManager
 	ProxyServer *server.Server
+	TgServer    *telegram.Server
 }
 
 func (c *Custom) Init(a *App) (err error) {
 	c.SqliteStorage = sqlite.New(a.Sqlite)
 
-	c.Service = service.New(c.SqliteStorage)
+	c.Service = service.New(a.Cfg, c.SqliteStorage)
 
 	c.ProxyServer, err = server.New(a.Cfg, c.Service)
 	if err != nil {
@@ -52,15 +54,19 @@ func (c *Custom) Init(a *App) (err error) {
 		middleware.LogInterceptor(),
 		middleware.PanicInterceptor(),
 	)
+
+	c.TgServer = telegram.NewServer(a.Cfg, a.Telegram, c.Service)
 	return nil
 }
 
 func (c *Custom) Start(ctx context.Context) error {
 	eg, ctx := errgroup.WithContext(ctx)
+
 	eg.Go(func() error {
 		return c.ProxyServer.ListenAndServe(ctx)
 	})
 	eg.Go(c.ApiServer.Start)
+	eg.Go(c.TgServer.Start)
 
 	err := eg.Wait()
 	if err != nil {
@@ -71,10 +77,11 @@ func (c *Custom) Start(ctx context.Context) error {
 }
 
 func (c *Custom) Stop() error {
-	err := c.ProxyServer.Close()
-	if err != nil {
-		return rerrors.Wrap(err, "close custom server")
-	}
+
+	eg := errgroup.Group{}
+	eg.Go(c.ProxyServer.Close)
+	eg.Go(c.ApiServer.Stop)
+	eg.Go(c.TgServer.Stop)
 
 	return nil
 }

@@ -1,6 +1,13 @@
 package domain
 
+type UserAuth struct {
+	User
+	ProxyLink string
+}
+
 type User struct {
 	Username string
-	Password string
+}
+
+type ListUsersReq struct {
 }
