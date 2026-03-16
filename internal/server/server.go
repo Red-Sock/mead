@@ -80,19 +80,6 @@ func New(cfg config.Config, srv iservice.Service) (*Server, error) {
 		},
 	}
 
-	//TODO
-	//for _, h := range cfg.BlockedHosts {
-	//	s.blockedHosts[h] = struct{}{}
-	//}
-
-	//for _, cidr := range cfg.AllowedCIDRs {
-	//	_, network, err := net.ParseCIDR(cidr)
-	//	if err != nil {
-	//		return nil, fmt.Errorf("invalid CIDR %q: %w", cidr, err)
-	//	}
-	//	s.allowedNets = append(s.allowedNets, network)
-	//}
-
 	return s, nil
 }
 

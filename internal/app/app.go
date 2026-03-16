@@ -6,11 +6,11 @@ import (
 	"context"
 	"database/sql"
 	"github.com/rs/zerolog/log"
-	"go.redsock.ru/mead/internal/transport"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/closer"
 	"golang.org/x/sync/errgroup"
+	"net"
 
 	"go.redsock.ru/mead/internal/config"
 )
@@ -21,8 +21,8 @@ type App struct {
 	Cfg  config.Config
 	/* Data source connection */
 	Sqlite *sql.DB
-	/* Servers managers */
-	ServerMaster *transport.ServersManager
+	/* Servers network listeners */
+	MASTER net.Listener
 
 	Custom Custom
 }
@@ -42,7 +42,7 @@ func New() (app App, err error) {
 
 	err = app.InitServers()
 	if err != nil {
-		return App{}, rerrors.Wrap(err, "error during server initialization")
+		return App{}, rerrors.Wrap(err, "error during network listeners initialization")
 	}
 
 	err = app.Custom.Init(&app)
@@ -56,8 +56,6 @@ func New() (app App, err error) {
 func (a *App) Start() (err error) {
 	var eg *errgroup.Group
 	eg, a.Ctx = errgroup.WithContext(a.Ctx)
-	//eg.Go(a.ServerMaster.Start)
-	//closer.Add(func() error { return a.ServerMaster.Stop() })
 
 	eg.Go(func() error {
 		return a.Custom.Start(a.Ctx)

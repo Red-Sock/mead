@@ -14,6 +14,7 @@ import (
 	"go.redsock.ru/mead/internal/service/iservice"
 	"go.redsock.ru/mead/internal/storage"
 	"go.redsock.ru/mead/internal/storage/sqlite"
+	"go.redsock.ru/mead/internal/transport"
 )
 
 type Custom struct {
@@ -21,9 +22,8 @@ type Custom struct {
 
 	Service iservice.Service
 
-	Server *server.Server
-
-	listener net.Listener
+	ProxyServer *server.Server
+	ApiServer   *transport.ServersManager
 }
 
 func (c *Custom) Init(a *App) (err error) {
@@ -31,16 +31,18 @@ func (c *Custom) Init(a *App) (err error) {
 
 	c.Service = service.New(c.SqliteStorage)
 
-	c.Server, err = server.New(a.Cfg, c.Service)
+	c.ProxyServer, err = server.New(a.Cfg, c.Service)
 	if err != nil {
 		return rerrors.Wrap(err, "init custom server")
 	}
+
+	c.ApiServer, err = transport.NewServerManager(a.Ctx, a.ServerMaster)
 
 	return nil
 }
 
 func (c *Custom) Start(ctx context.Context) error {
-	err := c.Server.ListenAndServe(ctx)
+	err := c.ProxyServer.ListenAndServe(ctx)
 	if err != nil {
 		return rerrors.Wrap(err, "start custom server")
 	}
@@ -49,7 +51,7 @@ func (c *Custom) Start(ctx context.Context) error {
 }
 
 func (c *Custom) Stop() error {
-	err := c.Server.Close()
+	err := c.ProxyServer.Close()
 	if err != nil {
 		return rerrors.Wrap(err, "close custom server")
 	}
