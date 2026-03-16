@@ -1,8 +1,22 @@
-POST http://localhost:3081/api/user
+### Create one user
+POST {{url}}/api/user
 Content-Type: application/json
 Authorization: Pass {{token}}
 
 {
-  "username": "AlexSkilled",
-  "password": "redsockpass"
+  "username": "AlexSkilled"
+}
+
+
+### Create one user
+POST {{url}}/api/user
+Content-Type: application/json
+Authorization: Pass {{token}}
+
+{
+  "usernames": {
+    "usernames": [
+      "AlexSkilled"
+    ]
+  }
 }

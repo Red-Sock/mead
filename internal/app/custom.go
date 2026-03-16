@@ -34,7 +34,7 @@ type Custom struct {
 func (c *Custom) Init(a *App) (err error) {
 	c.SqliteStorage = sqlite.New(a.Sqlite)
 
-	c.Service = service.New(a.Cfg, c.SqliteStorage)
+	c.Service = service.New(a.Cfg, c.SqliteStorage, a.Telegram)
 
 	c.ProxyServer, err = server.New(a.Cfg, c.Service)
 	if err != nil {

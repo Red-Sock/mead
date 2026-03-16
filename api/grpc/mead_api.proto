@@ -24,15 +24,6 @@ service MeadAPI {
   };
 }
 
-message CreateUser {
-  message Request {
-    string username = 1;
-    string password = 2;
-  }
-
-  message Response {}
-}
-
 message Version {
   message Request {}
 
@@ -41,3 +32,19 @@ message Version {
     google.protobuf.Timestamp client_timestamp = 2;
   }
 }
+
+message CreateUser {
+  message Request {
+    oneof payload {
+      string username = 1;
+      ManyUsers usernames = 2;
+    }
+
+    message ManyUsers {
+      repeated string usernames = 2;
+    }
+  }
+
+  message Response {}
+}
+

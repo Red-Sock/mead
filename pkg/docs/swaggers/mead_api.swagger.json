@@ -72,14 +72,25 @@
     }
   },
   "definitions": {
+    "RequestManyUsers": {
+      "type": "object",
+      "properties": {
+        "usernames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "mead_apiCreateUserRequest": {
       "type": "object",
       "properties": {
         "username": {
           "type": "string"
         },
-        "password": {
-          "type": "string"
+        "usernames": {
+          "$ref": "#/definitions/RequestManyUsers"
         }
       }
     },

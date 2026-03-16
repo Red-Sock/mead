@@ -41,13 +41,12 @@ func NewAuth(cfg config.Config, str storage.Storage) *CredentialService {
 	}
 }
 
-func (s *CredentialService) Add(ctx context.Context, username, password string) error {
+func (s *CredentialService) Add(ctx context.Context, username string) error {
 	if username == "" {
 		return user_errors.ErrUsernameIsEmpty
 	}
-	if password == "" {
-		password = utils.GeneratePassword(16)
-	}
+
+	password := utils.GeneratePassword(16)
 
 	addParams := user_queries.AddParams{
 		Username: username,

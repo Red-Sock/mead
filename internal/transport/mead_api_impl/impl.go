@@ -18,12 +18,14 @@ type Impl struct {
 
 	version     string
 	authService iservice.Auth
+	tgService   iservice.Tg
 }
 
 func New(cfg config.Config, service iservice.Service) *Impl {
 	return &Impl{
 		version:     cfg.AppInfo.Version,
 		authService: service.Auth(),
+		tgService:   service.Tg(),
 	}
 }
 
