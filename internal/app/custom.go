@@ -50,7 +50,7 @@ func (c *Custom) Init(a *App) (err error) {
 	c.ApiServer.AddImplementation(mead_api_impl.New(a.Cfg, c.Service))
 
 	c.ApiServer.AddServerOption(
-		middleware.AuthInterceptor("123"),
+		middleware.AuthInterceptor(a.Cfg.Environment.APIToken),
 		middleware.LogInterceptor(),
 		middleware.PanicInterceptor(),
 	)
