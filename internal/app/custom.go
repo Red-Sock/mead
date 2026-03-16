@@ -5,9 +5,9 @@ package app
 
 import (
 	"context"
-	"net"
 
 	"go.redsock.ru/rerrors"
+	"golang.org/x/sync/errgroup"
 
 	"go.redsock.ru/mead/internal/server"
 	"go.redsock.ru/mead/internal/service"
@@ -15,6 +15,8 @@ import (
 	"go.redsock.ru/mead/internal/storage"
 	"go.redsock.ru/mead/internal/storage/sqlite"
 	"go.redsock.ru/mead/internal/transport"
+	"go.redsock.ru/mead/internal/transport/mead_api_impl"
+	"go.redsock.ru/mead/pkg/docs"
 )
 
 type Custom struct {
@@ -22,8 +24,8 @@ type Custom struct {
 
 	Service iservice.Service
 
-	ProxyServer *server.Server
 	ApiServer   *transport.ServersManager
+	ProxyServer *server.Server
 }
 
 func (c *Custom) Init(a *App) (err error) {
@@ -33,18 +35,30 @@ func (c *Custom) Init(a *App) (err error) {
 
 	c.ProxyServer, err = server.New(a.Cfg, c.Service)
 	if err != nil {
-		return rerrors.Wrap(err, "init custom server")
+		return rerrors.Wrap(err, "init proxy server")
 	}
 
-	c.ApiServer, err = transport.NewServerManager(a.Ctx, a.ServerMaster)
+	c.ApiServer, err = transport.NewServerManager(a.Ctx, a.MASTER)
+	if err != nil {
+		return rerrors.Wrap(err, "init api server")
+	}
+
+	c.ApiServer.AddHttpHandler(docs.Swagger())
+	c.ApiServer.AddImplementation(mead_api_impl.New(a.Cfg))
 
 	return nil
 }
 
 func (c *Custom) Start(ctx context.Context) error {
-	err := c.ProxyServer.ListenAndServe(ctx)
+	eg, ctx := errgroup.WithContext(ctx)
+	eg.Go(func() error {
+		return c.ProxyServer.ListenAndServe(ctx)
+	})
+	eg.Go(c.ApiServer.Start)
+
+	err := eg.Wait()
 	if err != nil {
-		return rerrors.Wrap(err, "start custom server")
+		return rerrors.Wrap(err)
 	}
 
 	return nil

@@ -7,14 +7,21 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
+
+	"go.redsock.ru/mead/internal/config"
+	"go.redsock.ru/mead/pkg/mead_api"
 )
 
 type Impl struct {
 	mead_api.UnimplementedMeadAPIServer
+
+	version string
 }
 
-func New() *Impl {
-	return &Impl{}
+func New(cfg config.Config) *Impl {
+	return &Impl{
+		version: cfg.AppInfo.Version,
+	}
 }
 
 func (impl *Impl) Register(server grpc.ServiceRegistrar) {

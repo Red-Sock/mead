@@ -103,7 +103,12 @@ func (s *Server) Serve(ctx context.Context, ln net.Listener) error {
 	go func() {
 		select {
 		case <-ctx.Done():
-			s.Close()
+			err := s.Close()
+			if err != nil {
+				log.Error().
+					Err(err).
+					Msg("close server error")
+			}
 		case <-s.closed:
 		}
 	}()
