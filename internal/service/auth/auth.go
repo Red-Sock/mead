@@ -7,6 +7,7 @@ import (
 
 	"go.redsock.ru/rerrors"
 
+	"go.redsock.ru/mead/internal/service/user_errors"
 	"go.redsock.ru/mead/internal/storage"
 	"go.redsock.ru/mead/internal/storage/sqlite/user_queries"
 )
@@ -32,10 +33,10 @@ func NewAuth(str storage.Storage) *CredentialStore {
 
 func (s *CredentialStore) Add(ctx context.Context, username, password string) error {
 	if username == "" {
-		return ErrUsernameIsEmpy
+		return user_errors.ErrUsernameIsEmpty
 	}
 	if password == "" {
-		return ErrPasswordIsEmpy
+		return user_errors.ErrPasswordIsEmpty
 	}
 
 	addParams := user_queries.AddParams{
@@ -76,7 +77,7 @@ func (s *CredentialStore) Authenticate(ctx context.Context, username, password s
 	// subtle.ConstantTimeCompare returns 1 only when lengths AND content match.
 	match := subtle.ConstantTimeCompare(reference, candidate) == 1
 	if !ok || !match {
-		return ErrUnauthorized
+		return user_errors.ErrUnauthorized
 	}
 	return nil
 }

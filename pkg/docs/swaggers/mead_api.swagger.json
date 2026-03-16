@@ -16,6 +16,38 @@
     "application/json"
   ],
   "paths": {
+    "/api/user": {
+      "post": {
+        "operationId": "MeadAPI_CreateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/mead_apiCreateUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/mead_apiCreateUserRequest"
+            }
+          }
+        ],
+        "tags": [
+          "MeadAPI"
+        ]
+      }
+    },
     "/api/version": {
       "get": {
         "operationId": "MeadAPI_Version",
@@ -23,7 +55,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/VersionResponse"
+              "$ref": "#/definitions/mead_apiVersionResponse"
             }
           },
           "default": {
@@ -40,7 +72,21 @@
     }
   },
   "definitions": {
-    "VersionResponse": {
+    "mead_apiCreateUserRequest": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "mead_apiCreateUserResponse": {
+      "type": "object"
+    },
+    "mead_apiVersionResponse": {
       "type": "object",
       "properties": {
         "version": {

@@ -5,3 +5,4 @@ mead
 dev.yaml
 local_data
 proto_deps
+http-client.env.json

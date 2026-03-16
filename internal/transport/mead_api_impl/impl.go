@@ -9,18 +9,21 @@ import (
 	"google.golang.org/grpc"
 
 	"go.redsock.ru/mead/internal/config"
+	"go.redsock.ru/mead/internal/service/iservice"
 	"go.redsock.ru/mead/pkg/mead_api"
 )
 
 type Impl struct {
 	mead_api.UnimplementedMeadAPIServer
 
-	version string
+	version     string
+	authService iservice.Auth
 }
 
-func New(cfg config.Config) *Impl {
+func New(cfg config.Config, service iservice.Service) *Impl {
 	return &Impl{
-		version: cfg.AppInfo.Version,
+		version:     cfg.AppInfo.Version,
+		authService: service.Auth(),
 	}
 }
 

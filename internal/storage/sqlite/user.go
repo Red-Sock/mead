@@ -2,8 +2,12 @@ package sqlite
 
 import (
 	"context"
+	"errors"
+
+	"modernc.org/sqlite"
 
 	"go.redsock.ru/mead/internal/clients/sqldb"
+	"go.redsock.ru/mead/internal/service/user_errors"
 	"go.redsock.ru/mead/internal/storage"
 	"go.redsock.ru/mead/internal/storage/sqlite/user_queries"
 )
@@ -30,5 +34,15 @@ func (u *user) Add(ctx context.Context, arg user_queries.AddParams) error {
 }
 
 func wrapErr(err error) error {
+	var e *sqlite.Error
+	if !errors.As(err, &e) {
+		return err
+	}
+
+	switch e.Code() {
+	case 1555:
+		return user_errors.ErrAlreadyExists
+	}
+
 	return err
 }

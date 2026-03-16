@@ -45,7 +45,7 @@ func (c *Custom) Init(a *App) (err error) {
 	}
 
 	c.ApiServer.AddHttpHandler(docs.Swagger())
-	c.ApiServer.AddImplementation(mead_api_impl.New(a.Cfg))
+	c.ApiServer.AddImplementation(mead_api_impl.New(a.Cfg, c.Service))
 
 	c.ApiServer.AddServerOption(
 		middleware.AuthInterceptor("123"),
