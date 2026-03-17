@@ -503,13 +503,11 @@ func (s *Server) relay(a, b net.Conn, username, remote, target string) {
 	go copy(a, b, "in")
 	wg.Wait()
 
-	go func() {
-		err := s.auth.UpdateStatistics(context.Background(), username, bytesPassed.Load())
-		if err != nil {
-			log.Error().
-				Err(err).
-				Str(log_key.Username, username).
-				Msg("failed to update user statistics")
-		}
-	}()
+	err := s.auth.UpdateStatistics(context.Background(), username, bytesPassed.Load())
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str(log_key.Username, username).
+			Msg("failed to update user statistics")
+	}
 }
