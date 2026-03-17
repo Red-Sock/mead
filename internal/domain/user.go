@@ -6,7 +6,8 @@ type UserAuth struct {
 }
 
 type User struct {
-	Username string
+	Username   string
+	TelegramId int64
 }
 
 type ListUsersReq struct {

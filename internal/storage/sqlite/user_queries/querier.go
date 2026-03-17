@@ -6,11 +6,13 @@ package user_queries
 
 import (
 	"context"
+	"database/sql"
 )
 
 type Querier interface {
 	Add(ctx context.Context, arg AddParams) error
-	GetByTelegramName(ctx context.Context, username string) (string, error)
+	GetByTelegramId(ctx context.Context, telegramID sql.NullInt64) (GetByTelegramIdRow, error)
+	GetByTelegramName(ctx context.Context, username string) (GetByTelegramNameRow, error)
 	GetPassByUsername(ctx context.Context, username string) (string, error)
 }
 

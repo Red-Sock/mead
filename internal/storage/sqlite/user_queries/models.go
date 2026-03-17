@@ -4,7 +4,12 @@
 
 package user_queries
 
+import (
+	"database/sql"
+)
+
 type User struct {
-	Username string
-	Pass     string
+	Username   string
+	Pass       string
+	TelegramID sql.NullInt64
 }

@@ -7,34 +7,61 @@ package user_queries
 
 import (
 	"context"
+	"database/sql"
 )
 
 const add = `-- name: Add :exec
-INSERT INTO users (username, pass)
-VALUES (?, ?)
+INSERT INTO users (username, pass, telegram_id)
+VALUES (?, ?, ?)
 `
 
 type AddParams struct {
-	Username string
-	Pass     string
+	Username   string
+	Pass       string
+	TelegramID sql.NullInt64
 }
 
 func (q *Queries) Add(ctx context.Context, arg AddParams) error {
-	_, err := q.db.ExecContext(ctx, add, arg.Username, arg.Pass)
+	_, err := q.db.ExecContext(ctx, add, arg.Username, arg.Pass, arg.TelegramID)
 	return err
 }
 
+const getByTelegramId = `-- name: GetByTelegramId :one
+SELECT username, telegram_id
+FROM users
+WHERE telegram_id = ?
+LIMIT 1
+`
+
+type GetByTelegramIdRow struct {
+	Username   string
+	TelegramID sql.NullInt64
+}
+
+func (q *Queries) GetByTelegramId(ctx context.Context, telegramID sql.NullInt64) (GetByTelegramIdRow, error) {
+	row := q.db.QueryRowContext(ctx, getByTelegramId, telegramID)
+	var i GetByTelegramIdRow
+	err := row.Scan(&i.Username, &i.TelegramID)
+	return i, err
+}
+
 const getByTelegramName = `-- name: GetByTelegramName :one
-SELECT username
+SELECT username, telegram_id
 FROM users
 WHERE username = ?
 LIMIT 1
 `
 
-func (q *Queries) GetByTelegramName(ctx context.Context, username string) (string, error) {
+type GetByTelegramNameRow struct {
+	Username   string
+	TelegramID sql.NullInt64
+}
+
+func (q *Queries) GetByTelegramName(ctx context.Context, username string) (GetByTelegramNameRow, error) {
 	row := q.db.QueryRowContext(ctx, getByTelegramName, username)
-	err := row.Scan(&username)
-	return username, err
+	var i GetByTelegramNameRow
+	err := row.Scan(&i.Username, &i.TelegramID)
+	return i, err
 }
 
 const getPassByUsername = `-- name: GetPassByUsername :one

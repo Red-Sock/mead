@@ -39,18 +39,31 @@ func (u *user) Add(ctx context.Context, arg user_queries.AddParams) error {
 }
 
 func (u *user) GetByTelegramName(ctx context.Context, username string) (domain.User, error) {
-	userNameDb, err := u.q.GetByTelegramName(ctx, username)
+	resp, err := u.q.GetByTelegramName(ctx, username)
 	if err != nil {
 		return domain.User{}, wrapErr(err)
 	}
 
 	return domain.User{
-		Username: userNameDb,
+		Username:   resp.Username,
+		TelegramId: resp.TelegramID.Int64,
+	}, nil
+}
+
+func (u *user) GetByTelegramId(ctx context.Context, id int64) (domain.User, error) {
+	resp, err := u.q.GetByTelegramId(ctx, sql.NullInt64{Int64: id, Valid: true})
+	if err != nil {
+		return domain.User{}, wrapErr(err)
+	}
+
+	return domain.User{
+		Username:   resp.Username,
+		TelegramId: resp.TelegramID.Int64,
 	}, nil
 }
 
 func (u *user) List(ctx context.Context, req domain.ListUsersReq) ([]domain.User, error) {
-	q := sq.Select("username").
+	q := sq.Select("username", "telegram_id").
 		From("users")
 
 	query, args, err := q.ToSql()
@@ -68,10 +81,12 @@ func (u *user) List(ctx context.Context, req domain.ListUsersReq) ([]domain.User
 
 	for rows.Next() {
 		u := domain.User{}
-		err = rows.Scan(&u.Username)
+		var telegramId sql.NullInt64
+		err = rows.Scan(&u.Username, &telegramId)
 		if err != nil {
 			return nil, wrapErr(err)
 		}
+		u.TelegramId = telegramId.Int64
 
 		users = append(users, u)
 	}

@@ -5,8 +5,9 @@ go 1.25
 require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/Red-Sock/go-swagger-ui v0.0.2
-	github.com/Red-Sock/go_tg v0.0.28
+	github.com/Red-Sock/go_tg v0.0.30
 	github.com/Red-Sock/trace-errors v0.0.13
+	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.3
 	github.com/pressly/goose/v3 v3.24.3
 	github.com/rs/cors v1.11.1
@@ -25,7 +26,6 @@ require (
 
 require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect

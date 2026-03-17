@@ -17,6 +17,9 @@ type Auth interface {
 
 	ListUsers(ctx context.Context, req domain.ListUsersReq) ([]domain.User, error)
 	AuthByTelegramUsername(ctx context.Context, username string) (domain.UserAuth, error)
+	AuthByTelegramId(ctx context.Context, id int64) (domain.UserAuth, error)
+
+	Register(ctx context.Context, username string, telegramId int64) (domain.UserAuth, error)
 }
 
 type Tg interface {

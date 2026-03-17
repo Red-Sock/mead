@@ -2,8 +2,8 @@ github.com/Masterminds/squirrel v1.5.4 h1:uUcX/aBc8O7Fg9kaISIUsHXdKuqehiXAMQTYX8
 github.com/Masterminds/squirrel v1.5.4/go.mod h1:NNaOrjSoIDfDA40n7sr2tPNZRfjzjA400rg+riTZj10=
 github.com/Red-Sock/go-swagger-ui v0.0.2 h1:3JbNnyNQ25rwzyBN46mYEBXZZ5RhcijbDwS7g60dz3Y=
 github.com/Red-Sock/go-swagger-ui v0.0.2/go.mod h1:8F1CRKxVIKTTX7YWGn7OXmJUx9c6fM8AfxQlc9XWUMo=
-github.com/Red-Sock/go_tg v0.0.28 h1:t653cGfgU/jb+JsZkRb6CUVkUqe0nbExKsmW5P7LPy8=
-github.com/Red-Sock/go_tg v0.0.28/go.mod h1:zOQ7l6ymmkFEKMVADRTYF7Ed0oGnlBUsH3MDZmnbeH8=
+github.com/Red-Sock/go_tg v0.0.30 h1:Z0ijV4R4Pu7XbJHkbOQh4ctkMHqiTaQ/f312hMULS0I=
+github.com/Red-Sock/go_tg v0.0.30/go.mod h1:zOQ7l6ymmkFEKMVADRTYF7Ed0oGnlBUsH3MDZmnbeH8=
 github.com/Red-Sock/trace-errors v0.0.13 h1:T8f5Mp+Ts7PsTBINP7yYbFUs+gq7JoA2/be6WOsCMwA=
 github.com/Red-Sock/trace-errors v0.0.13/go.mod h1:Yk7KzCmvgX3zxgS7Qvf7/iZUGS3s7dxFHetsgQ3YZvM=
 github.com/coreos/go-systemd/v22 v22.5.0/go.mod h1:Y58oyj3AT4RCenI/lSvhwexgC+NSVTIJ3seZv2GcEnc=

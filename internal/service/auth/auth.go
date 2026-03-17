@@ -3,9 +3,11 @@ package auth
 import (
 	"context"
 	"crypto/subtle"
+	"database/sql"
 	"fmt"
 	"sync"
 
+	errors "github.com/Red-Sock/trace-errors"
 	"go.redsock.ru/rerrors"
 
 	"go.redsock.ru/mead/internal/config"
@@ -51,6 +53,9 @@ func (s *CredentialService) Add(ctx context.Context, username string) error {
 	addParams := user_queries.AddParams{
 		Username: username,
 		Pass:     password,
+		TelegramID: sql.NullInt64{
+			Valid: false,
+		},
 	}
 
 	err := s.usersStorage.Add(ctx, addParams)
@@ -67,25 +72,14 @@ func (s *CredentialService) Add(ctx context.Context, username string) error {
 
 // Authenticate implements Authenticator using constant-time comparison.
 func (s *CredentialService) Authenticate(ctx context.Context, username, password string) error {
-
-	return nil
-
-	s.mu.RLock()
-	stored, ok := s.cache[username]
-	s.mu.RUnlock()
-
-	// Always do the comparison even on miss to prevent timing side-channels
-	// on username enumeration.
-	candidate := []byte(password)
-	dummy := []byte("$dummy$")
-	reference := stored
-	if !ok {
-		reference = dummy
+	dbPass, err := s.usersStorage.GetPassByUsername(ctx, username)
+	if err != nil {
+		return errors.Wrap(err, "error getting user")
 	}
 
 	// subtle.ConstantTimeCompare returns 1 only when lengths AND content match.
-	match := subtle.ConstantTimeCompare(reference, candidate) == 1
-	if !ok || !match {
+	match := subtle.ConstantTimeCompare([]byte(dbPass), []byte(password)) == 1
+	if !match {
 		return user_errors.ErrUnauthorized
 	}
 	return nil
@@ -114,6 +108,55 @@ func (s *CredentialService) AuthByTelegramUsername(ctx context.Context, username
 	return domain.UserAuth{
 		User:      user,
 		ProxyLink: s.generateProxyLink(user, pass),
+	}, nil
+}
+
+func (s *CredentialService) AuthByTelegramId(ctx context.Context, id int64) (domain.UserAuth, error) {
+	user, err := s.usersStorage.GetByTelegramId(ctx, id)
+	if err != nil {
+		return domain.UserAuth{}, rerrors.Wrap(err, "error getting user by telegram id")
+	}
+
+	pass, err := s.usersStorage.GetPassByUsername(ctx, user.Username)
+	if err != nil {
+		return domain.UserAuth{}, rerrors.Wrap(err, "error reading pass by telegram id")
+	}
+
+	return domain.UserAuth{
+		User:      user,
+		ProxyLink: s.generateProxyLink(user, pass),
+	}, nil
+}
+
+func (s *CredentialService) Register(ctx context.Context, username string, telegramId int64) (domain.UserAuth, error) {
+	if username == "" {
+		return domain.UserAuth{}, user_errors.ErrUsernameIsEmpty
+	}
+
+	password := utils.GeneratePassword(16)
+
+	addParams := user_queries.AddParams{
+		Username: username,
+		Pass:     password,
+		TelegramID: sql.NullInt64{
+			Int64: telegramId,
+			Valid: true,
+		},
+	}
+
+	err := s.usersStorage.Add(ctx, addParams)
+	if err != nil {
+		return domain.UserAuth{}, rerrors.Wrap(err, "error storing user")
+	}
+
+	user := domain.User{
+		Username:   username,
+		TelegramId: telegramId,
+	}
+
+	return domain.UserAuth{
+		User:      user,
+		ProxyLink: s.generateProxyLink(user, password),
 	}, nil
 }
 
