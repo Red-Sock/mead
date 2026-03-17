@@ -77,3 +77,21 @@ func (q *Queries) GetPassByUsername(ctx context.Context, username string) (strin
 	err := row.Scan(&pass)
 	return pass, err
 }
+
+const updateStatistics = `-- name: UpdateStatistics :exec
+INSERT INTO user_statistics (username, last_connect, bytes_passed)
+VALUES (?, CURRENT_TIMESTAMP, ?)
+ON CONFLICT(username) DO UPDATE SET
+    last_connect = excluded.last_connect,
+    bytes_passed = user_statistics.bytes_passed + excluded.bytes_passed
+`
+
+type UpdateStatisticsParams struct {
+	Username    string
+	BytesPassed sql.NullInt64
+}
+
+func (q *Queries) UpdateStatistics(ctx context.Context, arg UpdateStatisticsParams) error {
+	_, err := q.db.ExecContext(ctx, updateStatistics, arg.Username, arg.BytesPassed)
+	return err
+}

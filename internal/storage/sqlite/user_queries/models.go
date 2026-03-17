@@ -13,3 +13,9 @@ type User struct {
 	Pass       string
 	TelegramID sql.NullInt64
 }
+
+type UserStatistic struct {
+	Username    string
+	LastConnect sql.NullTime
+	BytesPassed sql.NullInt64
+}

@@ -160,6 +160,18 @@ func (s *CredentialService) Register(ctx context.Context, username string, teleg
 	}, nil
 }
 
+func (s *CredentialService) UpdateStatistics(ctx context.Context, username string, bytesPassed int64) error {
+	arg := user_queries.UpdateStatisticsParams{
+		Username:    username,
+		BytesPassed: sql.NullInt64{Int64: bytesPassed, Valid: true},
+	}
+	err := s.usersStorage.UpdateStatistics(ctx, arg)
+	if err != nil {
+		return rerrors.Wrap(err, "error updating user statistics")
+	}
+	return nil
+}
+
 func (s *CredentialService) generateProxyLink(user domain.User, pass string) string {
 	return fmt.Sprintf(s.proxyBaseUrl+"&user=%s&pass=%s", user.Username, pass)
 }

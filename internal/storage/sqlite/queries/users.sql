@@ -19,3 +19,10 @@ SELECT pass
 FROM users
 WHERE username = ?
 LIMIT 1;
+
+-- name: UpdateStatistics :exec
+INSERT INTO user_statistics (username, last_connect, bytes_passed)
+VALUES (?, CURRENT_TIMESTAMP, ?)
+ON CONFLICT(username) DO UPDATE SET
+    last_connect = excluded.last_connect,
+    bytes_passed = user_statistics.bytes_passed + excluded.bytes_passed;

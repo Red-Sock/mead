@@ -465,16 +465,22 @@ func dialErrToReply(err error) uint8 {
 
 // relay copies data bidirectionally between a and b until either side closes.
 func (s *Server) relay(a, b net.Conn, username, remote, target string) {
+	var bytesPassed atomic.Int64
+
 	var wg sync.WaitGroup
 	wg.Add(2)
 	copy := func(dst, src net.Conn, dir string) {
 		defer wg.Done()
-		defer dst.(*net.TCPConn).CloseWrite() //nolint:errcheck
+		if tcpConn, ok := dst.(*net.TCPConn); ok {
+			tcpConn.CloseWrite() //nolint:errcheck
+		}
 
 		buf := make([]byte, 32*1024)
 		for {
 			n, err := src.Read(buf)
 			if n > 0 {
+				bytesPassed.Add(int64(n))
+
 				log.Info().
 					Str(log_key.Username, username).
 					Str(log_key.RemoteAddr, remote).
@@ -496,4 +502,14 @@ func (s *Server) relay(a, b net.Conn, username, remote, target string) {
 	go copy(b, a, "out")
 	go copy(a, b, "in")
 	wg.Wait()
+
+	go func() {
+		err := s.auth.UpdateStatistics(context.Background(), username, bytesPassed.Load())
+		if err != nil {
+			log.Error().
+				Err(err).
+				Str(log_key.Username, username).
+				Msg("failed to update user statistics")
+		}
+	}()
 }

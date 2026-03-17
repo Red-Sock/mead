@@ -19,4 +19,5 @@ type Users interface {
 	GetPassByUsername(ctx context.Context, username string) (string, error)
 
 	List(ctx context.Context, req domain.ListUsersReq) ([]domain.User, error)
+	UpdateStatistics(ctx context.Context, arg user_queries.UpdateStatisticsParams) error
 }

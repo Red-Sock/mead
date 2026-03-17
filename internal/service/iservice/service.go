@@ -20,6 +20,7 @@ type Auth interface {
 	AuthByTelegramId(ctx context.Context, id int64) (domain.UserAuth, error)
 
 	Register(ctx context.Context, username string, telegramId int64) (domain.UserAuth, error)
+	UpdateStatistics(ctx context.Context, username string, bytesPassed int64) error
 }
 
 type Tg interface {

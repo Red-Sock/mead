@@ -104,6 +104,15 @@ func (u *user) GetPassByUsername(ctx context.Context, username string) (string, 
 	return pass, nil
 }
 
+func (u *user) UpdateStatistics(ctx context.Context, arg user_queries.UpdateStatisticsParams) error {
+	err := u.q.UpdateStatistics(ctx, arg)
+	if err != nil {
+		return wrapErr(err)
+	}
+
+	return nil
+}
+
 func wrapErr(err error) error {
 	if errors.Is(err, sql.ErrNoRows) {
 		return user_errors.ErrNotFound
