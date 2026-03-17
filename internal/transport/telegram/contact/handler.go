@@ -24,7 +24,7 @@ func (h *Handler) Handle(in *model.MessageIn, out tgapi.Chat) error {
 		return h.HandleContactSharing(in, out)
 	}
 
-	return out.SendMessage(response.NewMessage("Can't handle that"))
+	return out.SendMessage(response.NewMessage("Не могу это обработать"))
 
 }
 
@@ -37,10 +37,10 @@ func (h *Handler) HandleContactSharing(in *model.MessageIn, out tgapi.Chat) erro
 
 	auth, err := h.authService.Register(in.Ctx, in.From.UserName, in.From.ID)
 	if err != nil {
-		return out.SendMessage(response.NewMessage("Failed to register: " + err.Error()))
+		return out.SendMessage(response.NewMessage("Не удалось зарегистрироваться: " + err.Error()))
 	}
 
-	preText := "Registration successful! Here is your personal proxy link. Click it to setup\n"
+	preText := "Регистрация прошла успешно! Вот ваша персональная ссылка на прокси. Нажмите на нее для настройки\n"
 	msg := response.NewMessage(preText + auth.ProxyLink)
 
 	msg.RemoveKeyboard = true

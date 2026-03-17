@@ -26,11 +26,11 @@ func New(service iservice.Service) *Handler {
 
 func (h *Handler) Handle(in *model.MessageIn, out tgapi.Chat) error {
 	if in.From.IsBot {
-		return out.SendMessage(response.NewMessage("Bot's aren't allowed to get proxy"))
+		return out.SendMessage(response.NewMessage("Ботам не разрешено получать прокси"))
 	}
 
 	if in.From.ID != in.Chat.ID {
-		return out.SendMessage(response.NewMessage("Only direct messages to bot is allowed. No group chatting"))
+		return out.SendMessage(response.NewMessage("Разрешены только личные сообщения боту. Групповые чаты не поддерживаются"))
 	}
 
 	auth, err := h.authService.AuthByTelegramId(in.Ctx, in.From.ID)
@@ -46,17 +46,17 @@ func (h *Handler) Handle(in *model.MessageIn, out tgapi.Chat) error {
 					Columns: 1,
 					Rows:    1,
 				}
-				contactButton := tgbotapi.NewKeyboardButtonContact("Share contact 📇")
+				contactButton := tgbotapi.NewKeyboardButtonContact("Поделиться контактом 📇")
 				contactBtnWrapper := keyboard.Button{
 					InternalButton: &contactButton,
 				}
 				kb.AddButton(contactBtnWrapper)
 				kb.SetIsReplyKeyboard(true)
 
-				msg := response.NewMessage("Welcome! To use this service, you need to register.\n\n" +
-					"By clicking \"Share contact\", you consent to the service tracking your data. " +
-					"We do not log message content, but we log who, from where, and where to send messages " +
-					"in case authorities ask.")
+				msg := response.NewMessage("Добро пожаловать! Чтобы воспользоваться сервисом, вам необходимо зарегистрироваться.\n\n" +
+					"Нажимая «Поделиться контактом», вы соглашаетесь на отслеживание ваших данных сервисом. " +
+					"Мы не логируем содержание сообщений, но мы фиксируем, кто, откуда и куда отправляет сообщения " +
+					"на случай запроса от правоохранительных органов. Не делайте ничего плохо используя наш прокси. Спасибо!")
 				msg.Keys = &kb
 
 				return out.SendMessage(msg)
@@ -65,7 +65,7 @@ func (h *Handler) Handle(in *model.MessageIn, out tgapi.Chat) error {
 		}
 	}
 
-	preText := "Here is your personal proxy link. Click it to setup\n"
+	preText := "Вот ваша персональная ссылка на прокси. Нажмите на нее для настройки\n"
 	msg := response.NewMessage(preText + auth.ProxyLink)
 	return out.SendMessage(msg)
 }
