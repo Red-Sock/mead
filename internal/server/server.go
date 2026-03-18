@@ -193,17 +193,13 @@ func (s *Server) handleConn(conn net.Conn) {
 	ctx := context.Background()
 
 	remote := conn.RemoteAddr().String()
-	log.Debug().
-		Str(log_key.RemoteAddr, remote).
-		Msg("new connection")
-
 	if s.cfg.Environment.ReadTimeout > 0 {
 		conn.SetDeadline(time.Now().Add(s.cfg.Environment.ReadTimeout))
 	}
 
 	err := s.negotiateAuth(conn)
 	if err != nil {
-		log.Warn().
+		log.Error().
 			Err(err).
 			Str(log_key.RemoteAddr, remote).
 			Msg("auth negotiation failed")
@@ -212,7 +208,7 @@ func (s *Server) handleConn(conn net.Conn) {
 
 	username, err := s.authenticate(ctx, conn)
 	if err != nil {
-		log.Warn().
+		log.Error().
 			Err(err).
 			Str(log_key.RemoteAddr, remote).
 			Msg("authentication failed")
@@ -222,7 +218,7 @@ func (s *Server) handleConn(conn net.Conn) {
 	// --- Handle CONNECT request ---
 	target, err := s.readRequest(conn)
 	if err != nil {
-		log.Warn().
+		log.Error().
 			Err(err).
 			Str(log_key.RemoteAddr, remote).
 			Str(log_key.Username, username).
@@ -240,11 +236,6 @@ func (s *Server) handleConn(conn net.Conn) {
 		Msg("Connection established")
 
 	if s.isBlocked(target) {
-		log.Warn().
-			Str(log_key.RemoteAddr, remote).
-			Str(log_key.Username, username).
-			Str(log_key.TargetAddr, target).
-			Msg("blocked destination ")
 		writeReply(conn, replyNotAllowed)
 		return
 	}
@@ -252,7 +243,7 @@ func (s *Server) handleConn(conn net.Conn) {
 	// --- Dial target ---
 	dst, err := s.dialer.Dial("tcp", target)
 	if err != nil {
-		log.Warn().
+		log.Error().
 			Err(err).
 			Str(log_key.RemoteAddr, remote).
 			Str(log_key.Username, username).
@@ -266,18 +257,18 @@ func (s *Server) handleConn(conn net.Conn) {
 	// --- Send success reply ---
 	err = writeSuccessReply(conn, dst.LocalAddr())
 	if err != nil {
-		log.Warn().
+		log.Error().
 			Err(err).
 			Str(log_key.RemoteAddr, remote).
 			Str(log_key.Username, username).
 			Str(log_key.TargetAddr, target).
-			Msg("Write reply ")
+			Msg("Write reply error")
 		return
 	}
 
 	// --- Relay data ---
 	s.relay(conn, dst, username, remote, target)
-	log.Debug().
+	log.Info().
 		Str(log_key.RemoteAddr, remote).
 		Str(log_key.Username, username).
 		Str(log_key.TargetAddr, target).
@@ -478,13 +469,6 @@ func (s *Server) relay(a, b net.Conn, username, remote, target string) {
 			n, err := src.Read(buf)
 			if n > 0 {
 				bytesPassed.Add(int64(n))
-				log.Info().
-					Str(log_key.Username, username).
-					Str(log_key.RemoteAddr, remote).
-					Str(log_key.TargetAddr, target).
-					Str("dir", dir).
-					Hex(log_key.Data, buf[:n]).
-					Msg("traffic")
 
 				_, wErr := dst.Write(buf[:n])
 				if wErr != nil {
