@@ -12,3 +12,9 @@ type User struct {
 
 type ListUsersReq struct {
 }
+
+type UserStatistic struct {
+	Username    string
+	LastConnect string
+	BytesPassed int64
+}

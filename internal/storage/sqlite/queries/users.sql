@@ -26,3 +26,7 @@ VALUES (?, CURRENT_TIMESTAMP, ?)
 ON CONFLICT(username) DO UPDATE SET
     last_connect = excluded.last_connect,
     bytes_passed = user_statistics.bytes_passed + excluded.bytes_passed;
+
+-- name: ListStatistics :many
+SELECT username, last_connect, bytes_passed
+FROM user_statistics;

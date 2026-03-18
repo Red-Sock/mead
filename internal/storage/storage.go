@@ -20,4 +20,5 @@ type Users interface {
 
 	List(ctx context.Context, req domain.ListUsersReq) ([]domain.User, error)
 	UpdateStatistics(ctx context.Context, arg user_queries.UpdateStatisticsParams) error
+	ListStatistics(ctx context.Context) ([]domain.UserStatistic, error)
 }

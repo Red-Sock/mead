@@ -113,6 +113,24 @@ func (u *user) UpdateStatistics(ctx context.Context, arg user_queries.UpdateStat
 	return nil
 }
 
+func (u *user) ListStatistics(ctx context.Context) ([]domain.UserStatistic, error) {
+	resp, err := u.q.ListStatistics(ctx)
+	if err != nil {
+		return nil, wrapErr(err)
+	}
+
+	result := make([]domain.UserStatistic, 0, len(resp))
+	for _, r := range resp {
+		result = append(result, domain.UserStatistic{
+			Username:    r.Username,
+			LastConnect: r.LastConnect.Time.Format("2006-01-02 15:04:05"),
+			BytesPassed: r.BytesPassed.Int64,
+		})
+	}
+
+	return result, nil
+}
+
 func wrapErr(err error) error {
 	if errors.Is(err, sql.ErrNoRows) {
 		return user_errors.ErrNotFound

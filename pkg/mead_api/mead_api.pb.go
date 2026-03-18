@@ -96,6 +96,102 @@ func (*CreateUser) Descriptor() ([]byte, []int) {
 	return file_mead_api_proto_rawDescGZIP(), []int{1}
 }
 
+type ListStatistics struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListStatistics) Reset() {
+	*x = ListStatistics{}
+	mi := &file_mead_api_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListStatistics) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListStatistics) ProtoMessage() {}
+
+func (x *ListStatistics) ProtoReflect() protoreflect.Message {
+	mi := &file_mead_api_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListStatistics.ProtoReflect.Descriptor instead.
+func (*ListStatistics) Descriptor() ([]byte, []int) {
+	return file_mead_api_proto_rawDescGZIP(), []int{2}
+}
+
+type UserStatistic struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Username      string                 `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	LastConnect   string                 `protobuf:"bytes,2,opt,name=last_connect,json=lastConnect,proto3" json:"last_connect,omitempty"`
+	BytesPassed   int64                  `protobuf:"varint,3,opt,name=bytes_passed,json=bytesPassed,proto3" json:"bytes_passed,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserStatistic) Reset() {
+	*x = UserStatistic{}
+	mi := &file_mead_api_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserStatistic) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserStatistic) ProtoMessage() {}
+
+func (x *UserStatistic) ProtoReflect() protoreflect.Message {
+	mi := &file_mead_api_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserStatistic.ProtoReflect.Descriptor instead.
+func (*UserStatistic) Descriptor() ([]byte, []int) {
+	return file_mead_api_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *UserStatistic) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *UserStatistic) GetLastConnect() string {
+	if x != nil {
+		return x.LastConnect
+	}
+	return ""
+}
+
+func (x *UserStatistic) GetBytesPassed() int64 {
+	if x != nil {
+		return x.BytesPassed
+	}
+	return 0
+}
+
 type Version_Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -104,7 +200,7 @@ type Version_Request struct {
 
 func (x *Version_Request) Reset() {
 	*x = Version_Request{}
-	mi := &file_mead_api_proto_msgTypes[2]
+	mi := &file_mead_api_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -116,7 +212,7 @@ func (x *Version_Request) String() string {
 func (*Version_Request) ProtoMessage() {}
 
 func (x *Version_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_mead_api_proto_msgTypes[2]
+	mi := &file_mead_api_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -142,7 +238,7 @@ type Version_Response struct {
 
 func (x *Version_Response) Reset() {
 	*x = Version_Response{}
-	mi := &file_mead_api_proto_msgTypes[3]
+	mi := &file_mead_api_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -154,7 +250,7 @@ func (x *Version_Response) String() string {
 func (*Version_Response) ProtoMessage() {}
 
 func (x *Version_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_mead_api_proto_msgTypes[3]
+	mi := &file_mead_api_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -197,7 +293,7 @@ type CreateUser_Request struct {
 
 func (x *CreateUser_Request) Reset() {
 	*x = CreateUser_Request{}
-	mi := &file_mead_api_proto_msgTypes[4]
+	mi := &file_mead_api_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -209,7 +305,7 @@ func (x *CreateUser_Request) String() string {
 func (*CreateUser_Request) ProtoMessage() {}
 
 func (x *CreateUser_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_mead_api_proto_msgTypes[4]
+	mi := &file_mead_api_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -274,7 +370,7 @@ type CreateUser_Response struct {
 
 func (x *CreateUser_Response) Reset() {
 	*x = CreateUser_Response{}
-	mi := &file_mead_api_proto_msgTypes[5]
+	mi := &file_mead_api_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -286,7 +382,7 @@ func (x *CreateUser_Response) String() string {
 func (*CreateUser_Response) ProtoMessage() {}
 
 func (x *CreateUser_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_mead_api_proto_msgTypes[5]
+	mi := &file_mead_api_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -311,7 +407,7 @@ type CreateUser_Request_ManyUsers struct {
 
 func (x *CreateUser_Request_ManyUsers) Reset() {
 	*x = CreateUser_Request_ManyUsers{}
-	mi := &file_mead_api_proto_msgTypes[6]
+	mi := &file_mead_api_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -323,7 +419,7 @@ func (x *CreateUser_Request_ManyUsers) String() string {
 func (*CreateUser_Request_ManyUsers) ProtoMessage() {}
 
 func (x *CreateUser_Request_ManyUsers) ProtoReflect() protoreflect.Message {
-	mi := &file_mead_api_proto_msgTypes[6]
+	mi := &file_mead_api_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -342,6 +438,86 @@ func (*CreateUser_Request_ManyUsers) Descriptor() ([]byte, []int) {
 func (x *CreateUser_Request_ManyUsers) GetUsernames() []string {
 	if x != nil {
 		return x.Usernames
+	}
+	return nil
+}
+
+type ListStatistics_Request struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListStatistics_Request) Reset() {
+	*x = ListStatistics_Request{}
+	mi := &file_mead_api_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListStatistics_Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListStatistics_Request) ProtoMessage() {}
+
+func (x *ListStatistics_Request) ProtoReflect() protoreflect.Message {
+	mi := &file_mead_api_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListStatistics_Request.ProtoReflect.Descriptor instead.
+func (*ListStatistics_Request) Descriptor() ([]byte, []int) {
+	return file_mead_api_proto_rawDescGZIP(), []int{2, 0}
+}
+
+type ListStatistics_Response struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Stas          []*UserStatistic       `protobuf:"bytes,1,rep,name=stas,proto3" json:"stas,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListStatistics_Response) Reset() {
+	*x = ListStatistics_Response{}
+	mi := &file_mead_api_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListStatistics_Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListStatistics_Response) ProtoMessage() {}
+
+func (x *ListStatistics_Response) ProtoReflect() protoreflect.Message {
+	mi := &file_mead_api_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListStatistics_Response.ProtoReflect.Descriptor instead.
+func (*ListStatistics_Response) Descriptor() ([]byte, []int) {
+	return file_mead_api_proto_rawDescGZIP(), []int{2, 1}
+}
+
+func (x *ListStatistics_Response) GetStas() []*UserStatistic {
+	if x != nil {
+		return x.Stas
 	}
 	return nil
 }
@@ -365,11 +541,20 @@ const file_mead_api_proto_rawDesc = "" +
 	"\tusernames\x18\x02 \x03(\tR\tusernamesB\t\n" +
 	"\apayload\x1a\n" +
 	"\n" +
-	"\bResponse2\xc2\x01\n" +
+	"\bResponse\"T\n" +
+	"\x0eListStatistics\x1a\t\n" +
+	"\aRequest\x1a7\n" +
+	"\bResponse\x12+\n" +
+	"\x04stas\x18\x01 \x03(\v2\x17.mead_api.UserStatisticR\x04stas\"q\n" +
+	"\rUserStatistic\x12\x1a\n" +
+	"\busername\x18\x01 \x01(\tR\busername\x12!\n" +
+	"\flast_connect\x18\x02 \x01(\tR\vlastConnect\x12!\n" +
+	"\fbytes_passed\x18\x03 \x01(\x03R\vbytesPassed2\xb2\x02\n" +
 	"\aMeadAPI\x12V\n" +
 	"\aVersion\x12\x19.mead_api.Version.Request\x1a\x1a.mead_api.Version.Response\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/api/version\x12_\n" +
 	"\n" +
-	"CreateUser\x12\x1c.mead_api.CreateUser.Request\x1a\x1d.mead_api.CreateUser.Response\"\x14\x82\xd3\xe4\x93\x02\x0e:\x01*\"\t/api/userB\x18\x92\x82\x19\t@ruf/meadZ\t/mead_apib\x06proto3"
+	"CreateUser\x12\x1c.mead_api.CreateUser.Request\x1a\x1d.mead_api.CreateUser.Response\"\x14\x82\xd3\xe4\x93\x02\x0e:\x01*\"\t/api/user\x12n\n" +
+	"\x0eListStatistics\x12 .mead_api.ListStatistics.Request\x1a!.mead_api.ListStatistics.Response\"\x17\x82\xd3\xe4\x93\x02\x11\"\x0f/api/statisticsB\x18\x92\x82\x19\t@ruf/meadZ\t/mead_apib\x06proto3"
 
 var (
 	file_mead_api_proto_rawDescOnce sync.Once
@@ -383,29 +568,36 @@ func file_mead_api_proto_rawDescGZIP() []byte {
 	return file_mead_api_proto_rawDescData
 }
 
-var file_mead_api_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_mead_api_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_mead_api_proto_goTypes = []any{
 	(*Version)(nil),                      // 0: mead_api.Version
 	(*CreateUser)(nil),                   // 1: mead_api.CreateUser
-	(*Version_Request)(nil),              // 2: mead_api.Version.Request
-	(*Version_Response)(nil),             // 3: mead_api.Version.Response
-	(*CreateUser_Request)(nil),           // 4: mead_api.CreateUser.Request
-	(*CreateUser_Response)(nil),          // 5: mead_api.CreateUser.Response
-	(*CreateUser_Request_ManyUsers)(nil), // 6: mead_api.CreateUser.Request.ManyUsers
-	(*timestamppb.Timestamp)(nil),        // 7: google.protobuf.Timestamp
+	(*ListStatistics)(nil),               // 2: mead_api.ListStatistics
+	(*UserStatistic)(nil),                // 3: mead_api.UserStatistic
+	(*Version_Request)(nil),              // 4: mead_api.Version.Request
+	(*Version_Response)(nil),             // 5: mead_api.Version.Response
+	(*CreateUser_Request)(nil),           // 6: mead_api.CreateUser.Request
+	(*CreateUser_Response)(nil),          // 7: mead_api.CreateUser.Response
+	(*CreateUser_Request_ManyUsers)(nil), // 8: mead_api.CreateUser.Request.ManyUsers
+	(*ListStatistics_Request)(nil),       // 9: mead_api.ListStatistics.Request
+	(*ListStatistics_Response)(nil),      // 10: mead_api.ListStatistics.Response
+	(*timestamppb.Timestamp)(nil),        // 11: google.protobuf.Timestamp
 }
 var file_mead_api_proto_depIdxs = []int32{
-	7, // 0: mead_api.Version.Response.client_timestamp:type_name -> google.protobuf.Timestamp
-	6, // 1: mead_api.CreateUser.Request.usernames:type_name -> mead_api.CreateUser.Request.ManyUsers
-	2, // 2: mead_api.MeadAPI.Version:input_type -> mead_api.Version.Request
-	4, // 3: mead_api.MeadAPI.CreateUser:input_type -> mead_api.CreateUser.Request
-	3, // 4: mead_api.MeadAPI.Version:output_type -> mead_api.Version.Response
-	5, // 5: mead_api.MeadAPI.CreateUser:output_type -> mead_api.CreateUser.Response
-	4, // [4:6] is the sub-list for method output_type
-	2, // [2:4] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	11, // 0: mead_api.Version.Response.client_timestamp:type_name -> google.protobuf.Timestamp
+	8,  // 1: mead_api.CreateUser.Request.usernames:type_name -> mead_api.CreateUser.Request.ManyUsers
+	3,  // 2: mead_api.ListStatistics.Response.stas:type_name -> mead_api.UserStatistic
+	4,  // 3: mead_api.MeadAPI.Version:input_type -> mead_api.Version.Request
+	6,  // 4: mead_api.MeadAPI.CreateUser:input_type -> mead_api.CreateUser.Request
+	9,  // 5: mead_api.MeadAPI.ListStatistics:input_type -> mead_api.ListStatistics.Request
+	5,  // 6: mead_api.MeadAPI.Version:output_type -> mead_api.Version.Response
+	7,  // 7: mead_api.MeadAPI.CreateUser:output_type -> mead_api.CreateUser.Response
+	10, // 8: mead_api.MeadAPI.ListStatistics:output_type -> mead_api.ListStatistics.Response
+	6,  // [6:9] is the sub-list for method output_type
+	3,  // [3:6] is the sub-list for method input_type
+	3,  // [3:3] is the sub-list for extension type_name
+	3,  // [3:3] is the sub-list for extension extendee
+	0,  // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_mead_api_proto_init() }
@@ -413,7 +605,7 @@ func file_mead_api_proto_init() {
 	if File_mead_api_proto != nil {
 		return
 	}
-	file_mead_api_proto_msgTypes[4].OneofWrappers = []any{
+	file_mead_api_proto_msgTypes[6].OneofWrappers = []any{
 		(*CreateUser_Request_Username)(nil),
 		(*CreateUser_Request_Usernames)(nil),
 	}
@@ -423,7 +615,7 @@ func file_mead_api_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_mead_api_proto_rawDesc), len(file_mead_api_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

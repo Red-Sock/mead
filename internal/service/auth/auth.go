@@ -172,6 +172,14 @@ func (s *CredentialService) UpdateStatistics(ctx context.Context, username strin
 	return nil
 }
 
+func (s *CredentialService) ListStatistics(ctx context.Context) ([]domain.UserStatistic, error) {
+	stats, err := s.usersStorage.ListStatistics(ctx)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error getting user statistics")
+	}
+	return stats, nil
+}
+
 func (s *CredentialService) generateProxyLink(user domain.User, pass string) string {
 	return fmt.Sprintf(s.proxyBaseUrl+"&user=%s&pass=%s", user.Username, pass)
 }

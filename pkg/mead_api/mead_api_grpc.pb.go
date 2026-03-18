@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	MeadAPI_Version_FullMethodName    = "/mead_api.MeadAPI/Version"
-	MeadAPI_CreateUser_FullMethodName = "/mead_api.MeadAPI/CreateUser"
+	MeadAPI_Version_FullMethodName        = "/mead_api.MeadAPI/Version"
+	MeadAPI_CreateUser_FullMethodName     = "/mead_api.MeadAPI/CreateUser"
+	MeadAPI_ListStatistics_FullMethodName = "/mead_api.MeadAPI/ListStatistics"
 )
 
 // MeadAPIClient is the client API for MeadAPI service.
@@ -29,6 +30,7 @@ const (
 type MeadAPIClient interface {
 	Version(ctx context.Context, in *Version_Request, opts ...grpc.CallOption) (*Version_Response, error)
 	CreateUser(ctx context.Context, in *CreateUser_Request, opts ...grpc.CallOption) (*CreateUser_Response, error)
+	ListStatistics(ctx context.Context, in *ListStatistics_Request, opts ...grpc.CallOption) (*ListStatistics_Response, error)
 }
 
 type meadAPIClient struct {
@@ -59,12 +61,23 @@ func (c *meadAPIClient) CreateUser(ctx context.Context, in *CreateUser_Request, 
 	return out, nil
 }
 
+func (c *meadAPIClient) ListStatistics(ctx context.Context, in *ListStatistics_Request, opts ...grpc.CallOption) (*ListStatistics_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListStatistics_Response)
+	err := c.cc.Invoke(ctx, MeadAPI_ListStatistics_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MeadAPIServer is the server API for MeadAPI service.
 // All implementations must embed UnimplementedMeadAPIServer
 // for forward compatibility.
 type MeadAPIServer interface {
 	Version(context.Context, *Version_Request) (*Version_Response, error)
 	CreateUser(context.Context, *CreateUser_Request) (*CreateUser_Response, error)
+	ListStatistics(context.Context, *ListStatistics_Request) (*ListStatistics_Response, error)
 	mustEmbedUnimplementedMeadAPIServer()
 }
 
@@ -80,6 +93,9 @@ func (UnimplementedMeadAPIServer) Version(context.Context, *Version_Request) (*V
 }
 func (UnimplementedMeadAPIServer) CreateUser(context.Context, *CreateUser_Request) (*CreateUser_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateUser not implemented")
+}
+func (UnimplementedMeadAPIServer) ListStatistics(context.Context, *ListStatistics_Request) (*ListStatistics_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListStatistics not implemented")
 }
 func (UnimplementedMeadAPIServer) mustEmbedUnimplementedMeadAPIServer() {}
 func (UnimplementedMeadAPIServer) testEmbeddedByValue()                 {}
@@ -138,6 +154,24 @@ func _MeadAPI_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MeadAPI_ListStatistics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListStatistics_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MeadAPIServer).ListStatistics(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MeadAPI_ListStatistics_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MeadAPIServer).ListStatistics(ctx, req.(*ListStatistics_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MeadAPI_ServiceDesc is the grpc.ServiceDesc for MeadAPI service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +186,10 @@ var MeadAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateUser",
 			Handler:    _MeadAPI_CreateUser_Handler,
+		},
+		{
+			MethodName: "ListStatistics",
+			Handler:    _MeadAPI_ListStatistics_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

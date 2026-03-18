@@ -21,6 +21,7 @@ type Auth interface {
 
 	Register(ctx context.Context, username string, telegramId int64) (domain.UserAuth, error)
 	UpdateStatistics(ctx context.Context, username string, bytesPassed int64) error
+	ListStatistics(ctx context.Context) ([]domain.UserStatistic, error)
 }
 
 type Tg interface {

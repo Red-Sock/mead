@@ -78,6 +78,34 @@ func (q *Queries) GetPassByUsername(ctx context.Context, username string) (strin
 	return pass, err
 }
 
+const listStatistics = `-- name: ListStatistics :many
+SELECT username, last_connect, bytes_passed
+FROM user_statistics
+`
+
+func (q *Queries) ListStatistics(ctx context.Context) ([]UserStatistic, error) {
+	rows, err := q.db.QueryContext(ctx, listStatistics)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []UserStatistic{}
+	for rows.Next() {
+		var i UserStatistic
+		if err := rows.Scan(&i.Username, &i.LastConnect, &i.BytesPassed); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateStatistics = `-- name: UpdateStatistics :exec
 INSERT INTO user_statistics (username, last_connect, bytes_passed)
 VALUES (?, CURRENT_TIMESTAMP, ?)

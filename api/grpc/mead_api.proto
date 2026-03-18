@@ -22,6 +22,12 @@ service MeadAPI {
       body: "*"
     };
   };
+
+  rpc ListStatistics(ListStatistics.Request) returns (ListStatistics.Response) {
+    option (google.api.http) = {
+      post: "/api/statistics"
+    };
+  };
 }
 
 message Version {
@@ -46,5 +52,20 @@ message CreateUser {
   }
 
   message Response {}
+}
+
+message ListStatistics {
+  message Request {
+  }
+
+  message Response {
+    repeated UserStatistic stas = 1;
+  }
+}
+
+message UserStatistic {
+  string username = 1;
+  string last_connect = 2;
+  int64 bytes_passed = 3;
 }
 

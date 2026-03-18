@@ -16,6 +16,28 @@
     "application/json"
   ],
   "paths": {
+    "/api/statistics": {
+      "post": {
+        "operationId": "MeadAPI_ListStatistics",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/mead_apiListStatisticsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "MeadAPI"
+        ]
+      }
+    },
     "/api/user": {
       "post": {
         "operationId": "MeadAPI_CreateUser",
@@ -96,6 +118,33 @@
     },
     "mead_apiCreateUserResponse": {
       "type": "object"
+    },
+    "mead_apiListStatisticsResponse": {
+      "type": "object",
+      "properties": {
+        "stas": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/mead_apiUserStatistic"
+          }
+        }
+      }
+    },
+    "mead_apiUserStatistic": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "lastConnect": {
+          "type": "string"
+        },
+        "bytesPassed": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
     },
     "mead_apiVersionResponse": {
       "type": "object",

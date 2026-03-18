@@ -14,6 +14,7 @@ type Querier interface {
 	GetByTelegramId(ctx context.Context, telegramID sql.NullInt64) (GetByTelegramIdRow, error)
 	GetByTelegramName(ctx context.Context, username string) (GetByTelegramNameRow, error)
 	GetPassByUsername(ctx context.Context, username string) (string, error)
+	ListStatistics(ctx context.Context) ([]UserStatistic, error)
 	UpdateStatistics(ctx context.Context, arg UpdateStatisticsParams) error
 }
 
