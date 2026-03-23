@@ -3,6 +3,7 @@ package sqldb
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
@@ -24,6 +25,20 @@ func New(cfg resources.SqlResource) (*sql.DB, error) {
 	closer.Add(func() error {
 		return conn.Close()
 	})
+
+	// Sleep to keep up with sidecar
+	time.Sleep(time.Second * 2)
+	for {
+		ctx, _ := context.WithTimeout(context.Background(), time.Second)
+
+		_, err = conn.ExecContext(ctx, `SELECT 1`)
+		if err != nil {
+			log.Info().Err(err).Msg("Postgres connection ping failed. sleep")
+			time.Sleep(5 * time.Second)
+		} else {
+			break
+		}
+	}
 
 	goose.SetLogger(sqlLogger{})
 	err = goose.SetDialect(dialect)
