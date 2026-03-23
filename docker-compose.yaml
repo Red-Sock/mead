@@ -3,10 +3,9 @@ services:
     image: postgres:18
     environment:
       POSTGRES_USER: mead
-      POSTGRES_PASSWORD:
+      POSTGRES_PASSWORD: password
       POSTGRES_DB: mead_db
-      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - '15433:5432'
     volumes:
-      - ./local_data/pg:/var/lib/postgresql/data
+      - ./local_data/pg:/var/lib/postgresql
