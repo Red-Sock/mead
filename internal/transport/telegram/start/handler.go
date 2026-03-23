@@ -8,6 +8,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.redsock.ru/rerrors"
 
+	"go.redsock.ru/mead/internal/domain"
 	"go.redsock.ru/mead/internal/service/iservice"
 	"go.redsock.ru/mead/internal/service/user_errors"
 )
@@ -53,12 +54,7 @@ func (h *Handler) Handle(in *model.MessageIn, out tgapi.Chat) error {
 				kb.AddButton(contactBtnWrapper)
 				kb.SetIsReplyKeyboard(true)
 
-				msg := response.NewMessage("Добро пожаловать! Чтобы воспользоваться сервисом, вам необходимо зарегистрироваться.\n\n" +
-					"Нажимая «Поделиться контактом», вы соглашаетесь на отслеживание ваших данных сервисом. " +
-					"Мы не логируем содержание сообщений, но фиксируем, кто, откуда и куда отправляет сообщения в формате\n1.1.1.1:1->username->2.2.2.2:2\n" +
-					"на случай запроса от правоохранительных органов." +
-					"\n\nПока сервис в Бэта тестировании - он бесплатный. В будущем это может изменится. Вы соглашаетесь с данной политикой" +
-					"\n\nНе делайте ничего плохо используя наш прокси. Спасибо!")
+				msg := response.NewMessage(domain.OfertaText)
 				msg.Keys = &kb
 
 				return out.SendMessage(msg)

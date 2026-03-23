@@ -6,6 +6,7 @@ import (
 	"go.redsock.ru/mead/internal/config"
 	"go.redsock.ru/mead/internal/service/iservice"
 	"go.redsock.ru/mead/internal/transport/telegram/contact"
+	"go.redsock.ru/mead/internal/transport/telegram/oferta"
 	"go.redsock.ru/mead/internal/transport/telegram/start"
 	"go.redsock.ru/mead/internal/transport/telegram/version"
 )
@@ -22,6 +23,7 @@ func NewServer(cfg config.Config, bot *client.Bot, srv iservice.Service) (s *Ser
 	{
 		// Add handlers here
 		s.bot.MustAddCommandHandler(version.New(cfg))
+		s.bot.MustAddCommandHandler(oferta.New())
 		s.bot.MustAddCommandHandler(start.New(srv))
 
 		s.bot.SetDefaultCommandHandler(contact.New(srv))
