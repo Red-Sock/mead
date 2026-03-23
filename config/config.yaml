@@ -3,9 +3,14 @@ app_info:
     version: v0.0.11
     startup_duration: 10s
 data_sources:
-    - resource_name: sqlite
-      path: /app/data/mead.db
+    - resource_name: postgres
       migrations_folder: ./migrations
+      host: localhost
+      port: 5432
+      user: postgres
+      pwd: ""
+      name: postgres
+      ssl_mode: ""
     - resource_name: telegram
       api_key: ""
 servers:
@@ -17,12 +22,12 @@ environment:
     - name: address
       type: string
       value: 0.0.0.0:3080
-    - name: dial_timeout
-      type: duration
-      value: 30s
     - name: api_token
       type: string
       value: "1251"
+    - name: dial_timeout
+      type: duration
+      value: 30s
     - name: log_format
       type: string
       enum: [JSON, TEXT]

@@ -1,14 +1,14 @@
 version: "2"
 sql:
-  - engine: "sqlite"
+  - engine: "postgresql"
     queries:
-      - "internal/storage/sqlite/queries/users.sql"
+      - "internal/storage/postgres/queries/users.sql"
     schema:
       - "migrations/*.sql"
     gen:
       go:
         package: "user_queries"
-        out: "internal/storage/sqlite/user_queries"
+        out: "internal/storage/postgres/user_queries"
         sql_package: "database/sql"
         emit_prepared_queries: false
         emit_interface: true

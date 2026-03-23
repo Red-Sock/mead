@@ -21,20 +21,6 @@ func New(cfg resources.SqlResource) (*sql.DB, error) {
 		return nil, rerrors.Wrap(err, "error checking connection to postgres")
 	}
 
-	if dialect == "sqlite" {
-		conn.SetMaxOpenConns(1)
-
-		_, err = conn.Exec("PRAGMA journal_mode=WAL;")
-		if err != nil {
-			return nil, rerrors.Wrap(err, "error setting WAL mode")
-		}
-
-		_, err = conn.Exec("PRAGMA busy_timeout=5000;")
-		if err != nil {
-			return nil, rerrors.Wrap(err, "error setting busy timeout")
-		}
-	}
-
 	closer.Add(func() error {
 		return conn.Close()
 	})

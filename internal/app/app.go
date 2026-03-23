@@ -21,7 +21,7 @@ type App struct {
 	Stop func()
 	Cfg  config.Config
 	/* Data source connection */
-	Sqlite   *sql.DB
+	Postgres *sql.DB
 	Telegram *go_tg.Bot
 	/* Servers network listeners */
 	MASTER net.Listener

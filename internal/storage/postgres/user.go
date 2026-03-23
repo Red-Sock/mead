@@ -1,4 +1,4 @@
-package sqlite
+package postgres
 
 import (
 	"context"
@@ -6,15 +6,15 @@ import (
 	"errors"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/lib/pq"
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
-	"modernc.org/sqlite"
 
 	"go.redsock.ru/mead/internal/clients/sqldb"
 	"go.redsock.ru/mead/internal/domain"
 	"go.redsock.ru/mead/internal/service/user_errors"
 	"go.redsock.ru/mead/internal/storage"
-	"go.redsock.ru/mead/internal/storage/sqlite/user_queries"
+	"go.redsock.ru/mead/internal/storage/postgres/user_queries"
 )
 
 type user struct {
@@ -46,25 +46,26 @@ func (u *user) GetByTelegramName(ctx context.Context, username string) (domain.U
 
 	return domain.User{
 		Username:   resp.Username,
-		TelegramId: resp.TelegramID.Int64,
+		TelegramId: int64(resp.TelegramID.Int32),
 	}, nil
 }
 
 func (u *user) GetByTelegramId(ctx context.Context, id int64) (domain.User, error) {
-	resp, err := u.q.GetByTelegramId(ctx, sql.NullInt64{Int64: id, Valid: true})
+	resp, err := u.q.GetByTelegramId(ctx, sql.NullInt32{Int32: int32(id), Valid: true})
 	if err != nil {
 		return domain.User{}, wrapErr(err)
 	}
 
 	return domain.User{
 		Username:   resp.Username,
-		TelegramId: resp.TelegramID.Int64,
+		TelegramId: int64(resp.TelegramID.Int32),
 	}, nil
 }
 
 func (u *user) List(ctx context.Context, req domain.ListUsersReq) ([]domain.User, error) {
 	q := sq.Select("username", "telegram_id").
-		From("users")
+		From("users").
+		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := q.ToSql()
 	if err != nil {
@@ -136,13 +137,13 @@ func wrapErr(err error) error {
 		return user_errors.ErrNotFound
 	}
 
-	var e *sqlite.Error
+	var e *pq.Error
 	if !errors.As(err, &e) {
 		return err
 	}
 
-	switch e.Code() {
-	case 1555:
+	switch e.Code {
+	case "23505":
 		return user_errors.ErrAlreadyExists
 	}
 

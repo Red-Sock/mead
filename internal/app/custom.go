@@ -14,7 +14,7 @@ import (
 	"go.redsock.ru/mead/internal/service"
 	"go.redsock.ru/mead/internal/service/iservice"
 	"go.redsock.ru/mead/internal/storage"
-	"go.redsock.ru/mead/internal/storage/sqlite"
+	"go.redsock.ru/mead/internal/storage/postgres"
 	"go.redsock.ru/mead/internal/transport"
 	"go.redsock.ru/mead/internal/transport/mead_api_impl"
 	"go.redsock.ru/mead/internal/transport/telegram"
@@ -22,7 +22,7 @@ import (
 )
 
 type Custom struct {
-	SqliteStorage storage.Storage
+	PostgresStorage storage.Storage
 
 	Service iservice.Service
 
@@ -32,9 +32,9 @@ type Custom struct {
 }
 
 func (c *Custom) Init(a *App) (err error) {
-	c.SqliteStorage = sqlite.New(a.Sqlite)
+	c.PostgresStorage = postgres.New(a.Postgres)
 
-	c.Service = service.New(a.Cfg, c.SqliteStorage, a.Telegram)
+	c.Service = service.New(a.Cfg, c.PostgresStorage, a.Telegram)
 
 	c.ProxyServer, err = server.New(a.Cfg, c.Service)
 	if err != nil {

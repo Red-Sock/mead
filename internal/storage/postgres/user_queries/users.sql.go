@@ -12,13 +12,13 @@ import (
 
 const add = `-- name: Add :exec
 INSERT INTO users (username, pass, telegram_id)
-VALUES (?, ?, ?)
+VALUES ($1, $2, $3)
 `
 
 type AddParams struct {
 	Username   string
 	Pass       string
-	TelegramID sql.NullInt64
+	TelegramID sql.NullInt32
 }
 
 func (q *Queries) Add(ctx context.Context, arg AddParams) error {
@@ -29,16 +29,16 @@ func (q *Queries) Add(ctx context.Context, arg AddParams) error {
 const getByTelegramId = `-- name: GetByTelegramId :one
 SELECT username, telegram_id
 FROM users
-WHERE telegram_id = ?
+WHERE telegram_id = $1
 LIMIT 1
 `
 
 type GetByTelegramIdRow struct {
 	Username   string
-	TelegramID sql.NullInt64
+	TelegramID sql.NullInt32
 }
 
-func (q *Queries) GetByTelegramId(ctx context.Context, telegramID sql.NullInt64) (GetByTelegramIdRow, error) {
+func (q *Queries) GetByTelegramId(ctx context.Context, telegramID sql.NullInt32) (GetByTelegramIdRow, error) {
 	row := q.db.QueryRowContext(ctx, getByTelegramId, telegramID)
 	var i GetByTelegramIdRow
 	err := row.Scan(&i.Username, &i.TelegramID)
@@ -48,13 +48,13 @@ func (q *Queries) GetByTelegramId(ctx context.Context, telegramID sql.NullInt64)
 const getByTelegramName = `-- name: GetByTelegramName :one
 SELECT username, telegram_id
 FROM users
-WHERE username = ?
+WHERE username = $1
 LIMIT 1
 `
 
 type GetByTelegramNameRow struct {
 	Username   string
-	TelegramID sql.NullInt64
+	TelegramID sql.NullInt32
 }
 
 func (q *Queries) GetByTelegramName(ctx context.Context, username string) (GetByTelegramNameRow, error) {
@@ -67,7 +67,7 @@ func (q *Queries) GetByTelegramName(ctx context.Context, username string) (GetBy
 const getPassByUsername = `-- name: GetPassByUsername :one
 SELECT pass
 FROM users
-WHERE username = ?
+WHERE username = $1
 LIMIT 1
 `
 
@@ -108,7 +108,7 @@ func (q *Queries) ListStatistics(ctx context.Context) ([]UserStatistic, error) {
 
 const updateStatistics = `-- name: UpdateStatistics :exec
 INSERT INTO user_statistics (username, last_connect, bytes_passed)
-VALUES (?, CURRENT_TIMESTAMP, ?)
+VALUES ($1, CURRENT_TIMESTAMP, $2)
 ON CONFLICT(username) DO UPDATE SET
     last_connect = excluded.last_connect,
     bytes_passed = user_statistics.bytes_passed + excluded.bytes_passed

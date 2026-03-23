@@ -14,7 +14,7 @@ import (
 	"go.redsock.ru/mead/internal/domain"
 	"go.redsock.ru/mead/internal/service/user_errors"
 	"go.redsock.ru/mead/internal/storage"
-	"go.redsock.ru/mead/internal/storage/sqlite/user_queries"
+	"go.redsock.ru/mead/internal/storage/postgres/user_queries"
 	"go.redsock.ru/mead/internal/utils"
 )
 
@@ -53,7 +53,7 @@ func (s *CredentialService) Add(ctx context.Context, username string) error {
 	addParams := user_queries.AddParams{
 		Username: username,
 		Pass:     password,
-		TelegramID: sql.NullInt64{
+		TelegramID: sql.NullInt32{
 			Valid: false,
 		},
 	}
@@ -138,8 +138,8 @@ func (s *CredentialService) Register(ctx context.Context, username string, teleg
 	addParams := user_queries.AddParams{
 		Username: username,
 		Pass:     password,
-		TelegramID: sql.NullInt64{
-			Int64: telegramId,
+		TelegramID: sql.NullInt32{
+			Int32: int32(telegramId),
 			Valid: true,
 		},
 	}

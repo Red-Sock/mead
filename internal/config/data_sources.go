@@ -7,6 +7,6 @@ import (
 )
 
 type DataSourcesConfig struct {
-	Sqlite   *resources.Sqlite
+	Postgres *resources.Postgres
 	Telegram *resources.Telegram
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"go.redsock.ru/mead/internal/domain"
-	"go.redsock.ru/mead/internal/storage/sqlite/user_queries"
+	"go.redsock.ru/mead/internal/storage/postgres/user_queries"
 )
 
 type Storage interface {

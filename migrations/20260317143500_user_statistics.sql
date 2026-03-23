@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 CREATE TABLE user_statistics (
     username TEXT PRIMARY KEY,
-    last_connect DATETIME DEFAULT CURRENT_TIMESTAMP,
+    last_connect TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     bytes_passed BIGINT DEFAULT 0,
     FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE
 );

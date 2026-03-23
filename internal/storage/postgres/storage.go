@@ -1,4 +1,4 @@
-package sqlite
+package postgres
 
 import (
 	"go.redsock.ru/mead/internal/clients/sqldb"

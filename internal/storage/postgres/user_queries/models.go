@@ -11,7 +11,7 @@ import (
 type User struct {
 	Username   string
 	Pass       string
-	TelegramID sql.NullInt64
+	TelegramID sql.NullInt32
 }
 
 type UserStatistic struct {
