@@ -3,9 +3,8 @@ package oferta
 import (
 	tgapi "github.com/Red-Sock/go_tg/interfaces"
 	"github.com/Red-Sock/go_tg/model"
-	"github.com/Red-Sock/go_tg/model/response"
 
-	"go.redsock.ru/mead/internal/domain"
+	"go.redsock.ru/mead/internal/transport/telegram/messages"
 )
 
 const Command = "/oferta"
@@ -18,7 +17,7 @@ func New() *Handler {
 }
 
 func (h *Handler) Handle(in *model.MessageIn, out tgapi.Chat) error {
-	return out.SendMessage(response.NewMessage(domain.OfertaText))
+	return out.SendMessage(messages.OfertaMessage())
 }
 
 func (h *Handler) GetCommand() string {

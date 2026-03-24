@@ -43,9 +43,9 @@ func NewAuth(cfg config.Config, str storage.Storage) *CredentialService {
 	}
 }
 
-func (s *CredentialService) Add(ctx context.Context, username string) error {
+func (s *CredentialService) Add(ctx context.Context, username string) (domain.UserAuth, error) {
 	if username == "" {
-		return user_errors.ErrUsernameIsEmpty
+		return domain.UserAuth{}, user_errors.ErrUsernameIsEmpty
 	}
 
 	password := utils.GeneratePassword(16)
@@ -60,14 +60,21 @@ func (s *CredentialService) Add(ctx context.Context, username string) error {
 
 	err := s.usersStorage.Add(ctx, addParams)
 	if err != nil {
-		return rerrors.Wrap(err, "error storing user")
+		return domain.UserAuth{}, rerrors.Wrap(err, "error storing user")
 	}
 
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.cache[username] = []byte(password)
 
-	return nil
+	user := domain.User{
+		Username: username,
+	}
+
+	return domain.UserAuth{
+		User:      user,
+		ProxyLink: s.generateProxyLink(user, password),
+	}, nil
 }
 
 // Authenticate implements Authenticator using constant-time comparison.
@@ -108,55 +115,6 @@ func (s *CredentialService) AuthByTelegramUsername(ctx context.Context, username
 	return domain.UserAuth{
 		User:      user,
 		ProxyLink: s.generateProxyLink(user, pass),
-	}, nil
-}
-
-func (s *CredentialService) AuthByTelegramId(ctx context.Context, id int64) (domain.UserAuth, error) {
-	user, err := s.usersStorage.GetByTelegramId(ctx, id)
-	if err != nil {
-		return domain.UserAuth{}, rerrors.Wrap(err, "error getting user by telegram id")
-	}
-
-	pass, err := s.usersStorage.GetPassByUsername(ctx, user.Username)
-	if err != nil {
-		return domain.UserAuth{}, rerrors.Wrap(err, "error reading pass by telegram id")
-	}
-
-	return domain.UserAuth{
-		User:      user,
-		ProxyLink: s.generateProxyLink(user, pass),
-	}, nil
-}
-
-func (s *CredentialService) Register(ctx context.Context, username string, telegramId int64) (domain.UserAuth, error) {
-	if username == "" {
-		return domain.UserAuth{}, user_errors.ErrUsernameIsEmpty
-	}
-
-	password := utils.GeneratePassword(16)
-
-	addParams := user_queries.AddParams{
-		Username: username,
-		Pass:     password,
-		TelegramID: sql.NullInt32{
-			Int32: int32(telegramId),
-			Valid: true,
-		},
-	}
-
-	err := s.usersStorage.Add(ctx, addParams)
-	if err != nil {
-		return domain.UserAuth{}, rerrors.Wrap(err, "error storing user")
-	}
-
-	user := domain.User{
-		Username:   username,
-		TelegramId: telegramId,
-	}
-
-	return domain.UserAuth{
-		User:      user,
-		ProxyLink: s.generateProxyLink(user, password),
 	}, nil
 }
 

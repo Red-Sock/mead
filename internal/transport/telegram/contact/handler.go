@@ -4,7 +4,6 @@ import (
 	tgapi "github.com/Red-Sock/go_tg/interfaces"
 	"github.com/Red-Sock/go_tg/model"
 	"github.com/Red-Sock/go_tg/model/response"
-	"github.com/rs/zerolog/log"
 
 	"go.redsock.ru/mead/internal/service/iservice"
 )
@@ -20,30 +19,5 @@ func New(service iservice.Service) *Handler {
 }
 
 func (h *Handler) Handle(in *model.MessageIn, out tgapi.Chat) error {
-	if in.Contact != nil {
-		return h.HandleContactSharing(in, out)
-	}
-
 	return out.SendMessage(response.NewMessage("Не могу это обработать"))
-
-}
-
-func (h *Handler) HandleContactSharing(in *model.MessageIn, out tgapi.Chat) error {
-	log.Info().
-		Int64("user_id", in.From.ID).
-		Str("username", in.From.UserName).
-		Str("phone_number", in.Contact.PhoneNumber).
-		Msg("User shared contact")
-
-	auth, err := h.authService.Register(in.Ctx, in.From.UserName, in.From.ID)
-	if err != nil {
-		return out.SendMessage(response.NewMessage("Не удалось зарегистрироваться: " + err.Error()))
-	}
-
-	preText := "Регистрация прошла успешно! Вот ваша персональная ссылка на прокси. Нажмите на нее для настройки\n"
-	msg := response.NewMessage(preText + auth.ProxyLink)
-
-	msg.RemoveKeyboard = true
-
-	return out.SendMessage(msg)
 }

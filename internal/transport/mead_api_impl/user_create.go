@@ -12,7 +12,7 @@ import (
 func (impl *Impl) CreateUser(ctx context.Context, request *pb.CreateUser_Request) (*pb.CreateUser_Response, error) {
 	username := request.GetUsername()
 	if username != "" {
-		err := impl.authService.Add(ctx, username)
+		_, err := impl.authService.Add(ctx, username)
 		if err != nil {
 			return nil, err
 		}
@@ -21,7 +21,7 @@ func (impl *Impl) CreateUser(ctx context.Context, request *pb.CreateUser_Request
 	}
 
 	for _, username = range request.GetUsernames().GetUsernames() {
-		err := impl.authService.Add(ctx, username)
+		_, err := impl.authService.Add(ctx, username)
 		if err != nil {
 			if errors.Is(err, user_errors.ErrAlreadyExists) {
 				continue

@@ -50,18 +50,6 @@ func (u *user) GetByTelegramName(ctx context.Context, username string) (domain.U
 	}, nil
 }
 
-func (u *user) GetByTelegramId(ctx context.Context, id int64) (domain.User, error) {
-	resp, err := u.q.GetByTelegramId(ctx, sql.NullInt32{Int32: int32(id), Valid: true})
-	if err != nil {
-		return domain.User{}, wrapErr(err)
-	}
-
-	return domain.User{
-		Username:   resp.Username,
-		TelegramId: int64(resp.TelegramID.Int32),
-	}, nil
-}
-
 func (u *user) List(ctx context.Context, req domain.ListUsersReq) ([]domain.User, error) {
 	q := sq.Select("username", "telegram_id").
 		From("users").
