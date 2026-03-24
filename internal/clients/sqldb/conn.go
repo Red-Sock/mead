@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/lib/pq"
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
@@ -17,10 +18,11 @@ func New(cfg resources.SqlResource) (*sql.DB, error) {
 	dialect := cfg.SqlDialect()
 	connStr := cfg.ConnectionString()
 
-	conn, err := sql.Open(dialect, connStr)
+	c, err := pq.NewConnector(connStr)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error checking connection to postgres")
 	}
+	conn := sql.OpenDB(c)
 
 	closer.Add(func() error {
 		return conn.Close()
@@ -30,11 +32,10 @@ func New(cfg resources.SqlResource) (*sql.DB, error) {
 	time.Sleep(time.Second * 2)
 	for {
 		ctx, _ := context.WithTimeout(context.Background(), time.Second)
-
-		_, err = conn.ExecContext(ctx, `SELECT 1`)
+		err = conn.PingContext(ctx)
 		if err != nil {
 			log.Info().Err(err).Msg("Postgres connection ping failed. sleep")
-			time.Sleep(5 * time.Second)
+			time.Sleep(time.Second * 2)
 		} else {
 			break
 		}
