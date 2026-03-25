@@ -55,6 +55,12 @@ func (h *Handler) Handle(in *model.MessageIn, out tgapi.Chat) error {
 
 	msg := messages.ProxyLinkMessage(auth.ProxyLink)
 
+	err = out.SendMessage(msg)
+	if err != nil {
+		return rerrors.Wrap(err, "")
+	}
+
+	msg = response.NewMessage("Так же рекомендую добавить запасной прокси: tg://proxy?server=151.243.171.247&port=3443&secret=0f8195ab85f387a2aab3acc49cdde2df")
 	return out.SendMessage(msg)
 }
 

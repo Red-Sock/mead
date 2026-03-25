@@ -1,6 +1,6 @@
 app_info:
     name: go.redsock.ru/mead
-    version: v0.0.15
+    version: v0.0.16
     startup_duration: 10s
 data_sources:
     - resource_name: postgres
