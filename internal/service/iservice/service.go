@@ -20,6 +20,8 @@ type Auth interface {
 
 	UpdateStatistics(ctx context.Context, username string, bytesPassed int64) error
 	ListStatistics(ctx context.Context) ([]domain.UserStatistic, error)
+
+	ReserveProxies(ctx context.Context) ([]string, error)
 }
 
 type Tg interface {

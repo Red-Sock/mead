@@ -23,7 +23,8 @@ type Authenticator interface {
 }
 
 type CredentialService struct {
-	usersStorage storage.Users
+	usersStorage      storage.Users
+	extraProxyStorage storage.ExtraProxies
 
 	mu    sync.RWMutex
 	cache map[string][]byte
@@ -33,7 +34,8 @@ type CredentialService struct {
 
 func NewAuth(cfg config.Config, str storage.Storage) *CredentialService {
 	return &CredentialService{
-		usersStorage: str.Users(),
+		usersStorage:      str.Users(),
+		extraProxyStorage: str.ExtraProxies(),
 
 		cache: make(map[string][]byte),
 
@@ -41,6 +43,15 @@ func NewAuth(cfg config.Config, str storage.Storage) *CredentialService {
 			cfg.Environment.ProxyAddress,
 			cfg.Environment.ProxyPort),
 	}
+}
+
+func (s *CredentialService) ReserveProxies(ctx context.Context) ([]string, error) {
+	p, err := s.extraProxyStorage.ListExtraProxies(ctx, domain.ListExtraProxies{})
+	if err != nil {
+		return nil, rerrors.Wrap(err)
+	}
+
+	return p, nil
 }
 
 func (s *CredentialService) Add(ctx context.Context, username string) (domain.UserAuth, error) {

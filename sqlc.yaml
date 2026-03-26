@@ -14,3 +14,17 @@ sql:
         emit_interface: true
         emit_exact_table_names: false
         emit_empty_slices: true
+  - engine: "postgresql"
+    queries:
+      - "internal/storage/postgres/queries/extra_proxies.sql"
+    schema:
+      - "migrations/*.sql"
+    gen:
+      go:
+        package: "extra_proxies_queries"
+        out: "internal/storage/postgres/extra_proxies_queries"
+        sql_package: "database/sql"
+        emit_prepared_queries: false
+        emit_interface: true
+        emit_exact_table_names: false
+        emit_empty_slices: true

@@ -1,6 +1,8 @@
 package start
 
 import (
+	"strings"
+
 	tgapi "github.com/Red-Sock/go_tg/interfaces"
 	"github.com/Red-Sock/go_tg/model"
 	"github.com/Red-Sock/go_tg/model/response"
@@ -60,7 +62,18 @@ func (h *Handler) Handle(in *model.MessageIn, out tgapi.Chat) error {
 		return rerrors.Wrap(err, "")
 	}
 
-	msg = response.NewMessage("Так же рекомендую добавить запасной прокси: tg://proxy?server=151.243.171.247&port=3443&secret=0f8195ab85f387a2aab3acc49cdde2df")
+	p, err := h.authService.ReserveProxies(in.Ctx)
+	if err != nil {
+		return rerrors.Wrap(err, "")
+	}
+
+	if len(p) == 0 {
+		return nil
+	}
+
+	extra := "Так же рекомендую добавить запасной(ые) прокси:\n" + strings.Join(p, "\n\n")
+
+	msg = response.NewMessage(extra)
 	return out.SendMessage(msg)
 }
 

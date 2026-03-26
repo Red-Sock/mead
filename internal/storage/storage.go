@@ -9,6 +9,7 @@ import (
 
 type Storage interface {
 	Users() Users
+	ExtraProxies() ExtraProxies
 }
 
 type Users interface {
@@ -20,4 +21,8 @@ type Users interface {
 	List(ctx context.Context, req domain.ListUsersReq) ([]domain.User, error)
 	UpdateStatistics(ctx context.Context, arg user_queries.UpdateStatisticsParams) error
 	ListStatistics(ctx context.Context) ([]domain.UserStatistic, error)
+}
+
+type ExtraProxies interface {
+	ListExtraProxies(ctx context.Context, req domain.ListExtraProxies) ([]string, error)
 }

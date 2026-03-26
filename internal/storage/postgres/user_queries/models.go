@@ -8,6 +8,10 @@ import (
 	"database/sql"
 )
 
+type ExtraProxy struct {
+	ProxyLink string
+}
+
 type User struct {
 	Username   string
 	Pass       string
